@@ -1,11 +1,35 @@
 #include "../vk_renderer/vk_renderer.hpp"
 
+const int WINDOW_WIDTH  { 800 };
+const int WINDOW_HEIGHT { 600 };
+const std::string MODEL_PATH = "resources/models/cube.obj";
+const std::string TEXTURE_PATH = "resources/textures/statue.jpg";
 
 int main() try
 {
-	vk_renderer app;
+	vk_renderer renderer;
 
-	app.run();
+	renderer.init_window(WINDOW_WIDTH, WINDOW_HEIGHT);
+	renderer.init_vulkan();
+
+	//while (true)
+	//{
+		renderer.main_loop();
+	//}
+
+	renderer.cleanup();
+	// while true
+	//   begin frame
+	//   begin shader
+	//   add model
+	//   end shader
+	//   end frame
+	//   swap buffer
+	
+	// destroy window
+	// destroy context
+
+	//renderer.run();
 
 	return EXIT_SUCCESS;
 }
