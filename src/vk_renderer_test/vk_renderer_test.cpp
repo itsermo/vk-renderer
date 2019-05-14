@@ -7,10 +7,10 @@ const std::string TEXTURE_PATH = "resources/textures/statue.jpg";
 
 int main() try
 {
-	vk_renderer renderer;
+	vk_renderer::vk_renderer renderer;
 
-	renderer.init_window(WINDOW_WIDTH, WINDOW_HEIGHT);
-	renderer.init_vulkan();
+	//renderer.init_window(WINDOW_WIDTH, WINDOW_HEIGHT);
+	renderer.init_vulkan(nullptr, 300, 300, 1024, 768);
 
 	//while (true)
 	//{
