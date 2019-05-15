@@ -9,28 +9,17 @@ int main() try
 {
 	vk_renderer::vk_renderer renderer;
 
-	//renderer.init_window(WINDOW_WIDTH, WINDOW_HEIGHT);
 	renderer.init_vulkan(nullptr, 300, 300, 1024, 768);
 
-	while (true)
+	auto cube = vk_renderer::utils::load_obj_file_to_memory("cube", "resources/models/cube.obj", "resources/textures/statue.jpg");
+
+	while (renderer.poll_events())
 	{
 		renderer.begin_frame();
+		renderer.add_model(cube);
 		renderer.end_frame();
-		renderer.swap_buffers();
+		renderer.draw_frame();
 	}
-
-	// while true
-	//   begin frame
-	//   begin shader
-	//   add model
-	//   end shader
-	//   end frame
-	//   swap buffer
-	
-	// destroy window
-	// destroy context
-
-	//renderer.run();
 
 	renderer.cleanup();
 

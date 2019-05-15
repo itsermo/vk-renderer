@@ -106,7 +106,7 @@ namespace vk_renderer::utils
 		return pix_vec;
 	}
 
-	static inline model load_obj_file_to_memory(const std::string & obj_file_path, const std::string & obj_id, const coord_system coords = { coord_axis::forward, coord_axis::left, coord_axis::up })
+	static inline model load_obj_file_to_memory(const std::string & obj_id, const std::string & obj_file_path, const coord_system coords = { coord_axis::forward, coord_axis::left, coord_axis::up })
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -147,6 +147,17 @@ namespace vk_renderer::utils
 				the_model.indices.push_back(unique_vertices[vert]);
 			}
 		}
+
+		return the_model;
+	}
+
+	static inline model load_obj_file_to_memory(const std::string & obj_id, const std::string & obj_file_path, const std::string & texture_file_path, const coord_system coords = { coord_axis::forward, coord_axis::left, coord_axis::up })
+	{
+		auto the_model = load_obj_file_to_memory(obj_id, obj_file_path);
+
+		size_t image_size{};
+		the_model.texture_data = utils::load_image_file_to_memory(texture_file_path, the_model.texture_width, the_model.texture_height, the_model.texture_num_chan, image_size);
+		the_model.mip_levels = static_cast<uint32_t>(std::floor(std::log2(std::max(the_model.texture_width, the_model.texture_height)))) + 1;
 
 		return the_model;
 	}

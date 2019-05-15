@@ -126,7 +126,7 @@ namespace vk_renderer {
 			create_color_resources();
 			create_depth_resources();
 			create_framebuffers();
-
+			setup_camera();
 		}
 
 		void begin_frame()
@@ -140,16 +140,97 @@ namespace vk_renderer {
 			cleanup_models();
 		}
 
+		void add_model(const model & the_model)
+		{
+			for (auto & m : model_cache)
+			{
+				if (the_model.id == m.id) {
+					model_draw_queue.push_back(&m);
+					return;
+				}
+			}
+
+			engine_model the_engine_model{ the_model };
+
+			std::tie(the_engine_model.vertex_buffer, the_engine_model.vertex_buffer_memory) = create_vertex_buffer(the_engine_model.vertices);
+			std::tie(the_engine_model.index_buffer, the_engine_model.index_buffer_memory) = create_index_buffer(the_engine_model.indices);
+
+			std::tie(the_engine_model.texture_image, the_engine_model.texture_image_memory) = create_texture_image(the_engine_model.texture_data, the_engine_model.texture_width, the_engine_model.texture_height, the_engine_model.texture_num_chan, the_engine_model.texture_data.size(), the_engine_model.mip_levels);
+			the_engine_model.texture_image_view = create_image_view(the_engine_model.texture_image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, the_engine_model.mip_levels);
+			the_engine_model.texture_sampler = create_texture_sampler(the_engine_model.mip_levels);
+			model_cache.push_back(the_engine_model);
+			model_draw_queue.push_back(&model_cache.back());
+		}
+
 		void end_frame()
 		{
-			load_models();
 			create_uniform_buffers();
 			create_descriptor_pool();
 			create_descriptor_sets();
 			create_command_buffers();
 			create_sync_objects();
-			setup_camera();
 		}
+
+		void draw_frame()
+		{
+			CHECK_VK(vkWaitForFences(logical_device, 1, &in_flight_fences[current_frame], VK_TRUE, std::numeric_limits<uint64_t>::max()), "Could not wait for vulkan fences at top of draw call");
+
+			uint32_t image_index{};
+			auto vk_result = vkAcquireNextImageKHR(logical_device, swap_chain, std::numeric_limits<uint64_t>::max(), image_available_semaphores[current_frame], VK_NULL_HANDLE, &image_index);
+			if (vk_result == VK_ERROR_OUT_OF_DATE_KHR || framebuffer_resized) {
+				framebuffer_resized = false;
+				recreate_swap_chain();
+				return;
+			}
+			else if (vk_result != VK_SUCCESS && vk_result != VK_SUBOPTIMAL_KHR) {
+				throw std::runtime_error("Could not acquire vulkan swap chain image");
+			}
+
+			update_uniform_buffer(image_index);
+
+			VkSemaphore signal_semaphores[] = { render_finished_semaphores[current_frame] };
+			VkSemaphore wait_semaphores[] = { image_available_semaphores[current_frame] };
+			VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+			VkSubmitInfo submit_info = {};
+			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			submit_info.waitSemaphoreCount = 1;
+			submit_info.pWaitSemaphores = wait_semaphores;
+			submit_info.pWaitDstStageMask = wait_stages;
+			submit_info.commandBufferCount = 1;
+			submit_info.pCommandBuffers = &command_buffers[image_index];
+			submit_info.signalSemaphoreCount = 1;
+			submit_info.pSignalSemaphores = signal_semaphores;
+
+			CHECK_VK(vkResetFences(logical_device, 1, &in_flight_fences[current_frame]), "Could not reset vulkan fences before queue submission");
+
+			CHECK_VK(vkQueueSubmit(graphics_queue, 1, &submit_info, in_flight_fences[current_frame]), "Could not submit vulkan graphics queue in draw call");
+
+			VkSwapchainKHR swap_chains[] = { swap_chain };
+			VkPresentInfoKHR present_info = {};
+			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+			present_info.waitSemaphoreCount = 1;
+			present_info.pWaitSemaphores = signal_semaphores;
+			present_info.swapchainCount = 1;
+			present_info.pSwapchains = swap_chains;
+			present_info.pImageIndices = &image_index;
+			present_info.pResults = nullptr; // Optional
+
+			vk_result = vkQueuePresentKHR(present_queue, &present_info);
+			if (vk_result == VK_ERROR_OUT_OF_DATE_KHR || vk_result == VK_SUBOPTIMAL_KHR || framebuffer_resized) {
+				framebuffer_resized = false;
+				recreate_swap_chain();
+			}
+			else if (vk_result != VK_SUCCESS) {
+				throw std::runtime_error("Could not present vulkan swap chain image");
+			}
+
+			//vkQueueWaitIdle(present_queue);
+
+			current_frame = (current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
+		}
+
+
 
 		void cleanup() {
 
@@ -190,7 +271,7 @@ namespace vk_renderer {
 			glfwSetKeyCallback(window, key_callback);
 		}
 
-		void swap_buffers()
+		bool poll_events()
 		{
 			glfwPollEvents();
 
@@ -200,7 +281,7 @@ namespace vk_renderer {
 
 			process_input();
 
-			draw_frame();
+			return !glfwWindowShouldClose(window);
 		}
 
 		void main_loop() {
@@ -330,7 +411,8 @@ namespace vk_renderer {
 		VkDescriptorPool descriptor_pool{ VK_NULL_HANDLE };
 		std::vector<VkDescriptorSet> descriptor_sets{};
 
-		std::vector<engine_model> models{};
+		std::vector<engine_model> model_cache{};
+		std::vector<engine_model*> model_draw_queue{};
 
 		// camera
 		uniform_buffer_object mvp{};
@@ -1834,8 +1916,8 @@ namespace vk_renderer {
 
 					VkDescriptorImageInfo image_info = {};
 					image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					image_info.imageView = models[0].texture_image_view;
-					image_info.sampler = models[0].texture_sampler;
+					image_info.imageView = model_draw_queue[0]->texture_image_view;
+					image_info.sampler = model_draw_queue[0]->texture_sampler;
 
 					std::array<VkWriteDescriptorSet, 2> descriptor_writes = {};
 
@@ -1905,15 +1987,15 @@ namespace vk_renderer {
 
 				vkCmdBindPipeline(command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
 
-				VkBuffer vertex_buffers[] = { models[0].vertex_buffer };
+				VkBuffer vertex_buffers[] = { model_draw_queue[0]->vertex_buffer };
 				VkDeviceSize offsets[] = { 0 };
 				vkCmdBindVertexBuffers(command_buffers[i], 0, 1, vertex_buffers, offsets);
 
-				vkCmdBindIndexBuffer(command_buffers[i], models[0].index_buffer, 0, VK_INDEX_TYPE_UINT32);
+				vkCmdBindIndexBuffer(command_buffers[i], model_draw_queue[0]->index_buffer, 0, VK_INDEX_TYPE_UINT32);
 
 				//vkCmdDraw(command_buffers[i], static_cast<uint32_t>(VERTICES.size()), 1, 0, 0);
 				vkCmdBindDescriptorSets(command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[i], 0, nullptr);
-				vkCmdDrawIndexed(command_buffers[i], static_cast<uint32_t>(models[0].indices.size()), 1, 0, 0, 0);
+				vkCmdDrawIndexed(command_buffers[i], static_cast<uint32_t>(model_draw_queue[0]->indices.size()), 1, 0, 0, 0);
 
 				vkCmdEndRenderPass(command_buffers[i]);
 
@@ -1949,22 +2031,6 @@ namespace vk_renderer {
 			cam.look_at({ 0,0,0 });
 		}
 
-		void load_models()
-		{
-			engine_model the_engine_model{ utils::load_obj_file_to_memory(MODEL_PATH, "chalet") };
-
-			std::tie(the_engine_model.vertex_buffer, the_engine_model.vertex_buffer_memory) = create_vertex_buffer(the_engine_model.vertices);
-			std::tie(the_engine_model.index_buffer, the_engine_model.index_buffer_memory) = create_index_buffer(the_engine_model.indices);
-			
-			size_t image_size{};
-			the_engine_model.texture_data = utils::load_image_file_to_memory(TEXTURE_PATH, the_engine_model.texture_width, the_engine_model.texture_height, the_engine_model.texture_num_chan, image_size);
-			the_engine_model.mip_levels = static_cast<uint32_t>(std::floor(std::log2(std::max(the_engine_model.texture_width, the_engine_model.texture_height)))) + 1;
-			std::tie(the_engine_model.texture_image, the_engine_model.texture_image_memory) = create_texture_image(the_engine_model.texture_data, the_engine_model.texture_width, the_engine_model.texture_height, the_engine_model.texture_num_chan, image_size, the_engine_model.mip_levels);
-			the_engine_model.texture_image_view = create_image_view(the_engine_model.texture_image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, the_engine_model.mip_levels);
-			the_engine_model.texture_sampler = create_texture_sampler(the_engine_model.mip_levels);
-			models.push_back(the_engine_model);
-		}
-
 		void update_uniform_buffer(uint32_t current_image)
 		{
 			//static auto start_time = std::chrono::high_resolution_clock::now();
@@ -1980,7 +2046,7 @@ namespace vk_renderer {
 				float4 { 0, 0, 0, 1 }
 			};
 
-			const auto & model_to_engine = make_transform(models[0].coordinate_system, engine_coordinate_system);
+			const auto & model_to_engine = make_transform(model_draw_queue[0]->coordinate_system, engine_coordinate_system);
 			const auto & model_to_engine_mat = float4x4{
 					float4 { model_to_engine.x, 0 },
 					float4 { model_to_engine.y, 0 },
@@ -2001,65 +2067,6 @@ namespace vk_renderer {
 			vkMapMemory(logical_device, uniform_buffer_memories[current_image], 0, sizeof(mvp), 0, &data);
 			memcpy(data, &mvp, sizeof(mvp));
 			vkUnmapMemory(logical_device, uniform_buffer_memories[current_image]);
-		}
-
-		void draw_frame()
-		{
-			CHECK_VK(vkWaitForFences(logical_device, 1, &in_flight_fences[current_frame], VK_TRUE, std::numeric_limits<uint64_t>::max()), "Could not wait for vulkan fences at top of draw call");
-
-			uint32_t image_index{};
-			auto vk_result = vkAcquireNextImageKHR(logical_device, swap_chain, std::numeric_limits<uint64_t>::max(), image_available_semaphores[current_frame], VK_NULL_HANDLE, &image_index);
-			if (vk_result == VK_ERROR_OUT_OF_DATE_KHR || framebuffer_resized) {
-				framebuffer_resized = false;
-				recreate_swap_chain();
-				return;
-			}
-			else if (vk_result != VK_SUCCESS && vk_result != VK_SUBOPTIMAL_KHR) {
-				throw std::runtime_error("Could not acquire vulkan swap chain image");
-			}
-
-			update_uniform_buffer(image_index);
-
-			VkSemaphore signal_semaphores[] = { render_finished_semaphores[current_frame] };
-			VkSemaphore wait_semaphores[] = { image_available_semaphores[current_frame] };
-			VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-
-			VkSubmitInfo submit_info = {};
-			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-			submit_info.waitSemaphoreCount = 1;
-			submit_info.pWaitSemaphores = wait_semaphores;
-			submit_info.pWaitDstStageMask = wait_stages;
-			submit_info.commandBufferCount = 1;
-			submit_info.pCommandBuffers = &command_buffers[image_index];
-			submit_info.signalSemaphoreCount = 1;
-			submit_info.pSignalSemaphores = signal_semaphores;
-
-			CHECK_VK(vkResetFences(logical_device, 1, &in_flight_fences[current_frame]), "Could not reset vulkan fences before queue submission");
-
-			CHECK_VK(vkQueueSubmit(graphics_queue, 1, &submit_info, in_flight_fences[current_frame]), "Could not submit vulkan graphics queue in draw call");
-
-			VkSwapchainKHR swap_chains[] = { swap_chain };
-			VkPresentInfoKHR present_info = {};
-			present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-			present_info.waitSemaphoreCount = 1;
-			present_info.pWaitSemaphores = signal_semaphores;
-			present_info.swapchainCount = 1;
-			present_info.pSwapchains = swap_chains;
-			present_info.pImageIndices = &image_index;
-			present_info.pResults = nullptr; // Optional
-
-			vk_result = vkQueuePresentKHR(present_queue, &present_info);
-			if (vk_result == VK_ERROR_OUT_OF_DATE_KHR || vk_result == VK_SUBOPTIMAL_KHR || framebuffer_resized) {
-				framebuffer_resized = false;
-				recreate_swap_chain();
-			}
-			else if (vk_result != VK_SUCCESS) {
-				throw std::runtime_error("Could not present vulkan swap chain image");
-			}
-
-			//vkQueueWaitIdle(present_queue);
-
-			current_frame = (current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 		}
 
 		void cleanup_swap_chain() {
@@ -2113,7 +2120,7 @@ namespace vk_renderer {
 
 		void cleanup_models()
 		{
-			for (auto model : models)
+			for (auto model : model_cache)
 			{
 				vkDestroyImageView(logical_device, model.texture_image_view, nullptr);
 
@@ -2129,7 +2136,7 @@ namespace vk_renderer {
 				vkDestroySampler(logical_device, model.texture_sampler, nullptr);
 			}
 
-			models.clear();
+			model_cache.clear();
 		}
 
 		void cleanup_descriptor_pool()
