@@ -11,12 +11,14 @@ int main() try
 
 	renderer.init_vulkan(nullptr, 300, 300, 1024, 768);
 
-	auto cube = vk_renderer::utils::load_obj_file_to_memory("cube", "resources/models/cube.obj", "resources/textures/statue.jpg");
+	auto cube_statue = vk_renderer::utils::load_obj_file_to_memory("cube venus", "resources/models/cube.obj", "resources/textures/statue.jpg");
+	auto cube_venus = vk_renderer::utils::load_obj_file_to_memory("cube venus", "resources/models/cube.obj", "resources/textures/venus.jpg");
 
 	while (renderer.poll_events())
 	{
 		renderer.begin_frame();
-		renderer.add_model(cube);
+		renderer.add_model(cube_statue);
+		renderer.add_model(cube_venus);
 		renderer.end_frame();
 		renderer.draw_frame();
 	}

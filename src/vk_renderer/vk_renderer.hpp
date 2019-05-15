@@ -1907,38 +1907,38 @@ namespace vk_renderer {
 			descriptor_sets.resize(swap_chain_images.size());
 			CHECK_VK(vkAllocateDescriptorSets(logical_device, &alloc_info, descriptor_sets.data()), "Could not allocate vulkan descriptor sets")
 
-				for (size_t i = 0; i < swap_chain_images.size(); i++) {
+			for (size_t i = 0; i < swap_chain_images.size(); i++) {
 
-					VkDescriptorBufferInfo buffer_info = {};
-					buffer_info.buffer = uniform_buffers[i];
-					buffer_info.offset = 0;
-					buffer_info.range = sizeof(uniform_buffer_object);
+				VkDescriptorBufferInfo buffer_info = {};
+				buffer_info.buffer = uniform_buffers[i];
+				buffer_info.offset = 0;
+				buffer_info.range = sizeof(uniform_buffer_object);
 
-					VkDescriptorImageInfo image_info = {};
-					image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					image_info.imageView = model_draw_queue[0]->texture_image_view;
-					image_info.sampler = model_draw_queue[0]->texture_sampler;
+				VkDescriptorImageInfo image_info = {};
+				image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+				image_info.imageView = model_draw_queue[0]->texture_image_view;
+				image_info.sampler = model_draw_queue[0]->texture_sampler;
 
-					std::array<VkWriteDescriptorSet, 2> descriptor_writes = {};
+				std::array<VkWriteDescriptorSet, 2> descriptor_writes = {};
 
-					descriptor_writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-					descriptor_writes[0].dstSet = descriptor_sets[i];
-					descriptor_writes[0].dstBinding = 0;
-					descriptor_writes[0].dstArrayElement = 0;
-					descriptor_writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-					descriptor_writes[0].descriptorCount = 1;
-					descriptor_writes[0].pBufferInfo = &buffer_info;
+				descriptor_writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				descriptor_writes[0].dstSet = descriptor_sets[i];
+				descriptor_writes[0].dstBinding = 0;
+				descriptor_writes[0].dstArrayElement = 0;
+				descriptor_writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				descriptor_writes[0].descriptorCount = 1;
+				descriptor_writes[0].pBufferInfo = &buffer_info;
 
-					descriptor_writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-					descriptor_writes[1].dstSet = descriptor_sets[i];
-					descriptor_writes[1].dstBinding = 1;
-					descriptor_writes[1].dstArrayElement = 0;
-					descriptor_writes[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-					descriptor_writes[1].descriptorCount = 1;
-					descriptor_writes[1].pImageInfo = &image_info;
+				descriptor_writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				descriptor_writes[1].dstSet = descriptor_sets[i];
+				descriptor_writes[1].dstBinding = 1;
+				descriptor_writes[1].dstArrayElement = 0;
+				descriptor_writes[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				descriptor_writes[1].descriptorCount = 1;
+				descriptor_writes[1].pImageInfo = &image_info;
 
-					vkUpdateDescriptorSets(logical_device, static_cast<uint32_t>(descriptor_writes.size()), descriptor_writes.data(), 0, nullptr);
-				}
+				vkUpdateDescriptorSets(logical_device, static_cast<uint32_t>(descriptor_writes.size()), descriptor_writes.data(), 0, nullptr);
+			}
 		}
 
 		void create_command_buffers()

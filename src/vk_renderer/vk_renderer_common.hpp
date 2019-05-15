@@ -54,6 +54,8 @@ namespace vk_renderer
 		int texture_num_chan{};
 		uint32_t mip_levels{};
 		coord_system coordinate_system{ coord_axis::right, coord_axis::up, coord_axis::back };
+		float3x4 transform;
+		model* parent;
 	};
 
 
@@ -61,6 +63,15 @@ namespace vk_renderer
 	{
 		float3 pos{ 0,0,0 };
 		float4 rot{ 0,0,0,1 };
+		float4x4 matrix_4x4() const { return linalg::pose_matrix(rot, pos); }
+		float3x4 matrix_3x4() const { return {{linalg::qxdir(rot)}, {linalg::qydir(rot)}, {linalg::qzdir(rot)}, {pos}}; }
+
+		static pose from_matrix(const float4x4 & pose_matrix) {
+			return { { pose_matrix.w.x, pose_matrix.w.y, pose_matrix.w.z }, { linalg::rotation_quat(float3x3 { pose_matrix.x.xyz(), pose_matrix.y.xyz(), pose_matrix.z.xyz() } ) } };
+		}
+		static pose from_matrix(const float3x4 & pose_matrix) {
+			return { { pose_matrix.w.x, pose_matrix.w.y, pose_matrix.w.z }, { linalg::rotation_quat(float3x3 { pose_matrix.x, pose_matrix.y, pose_matrix.z }) } };
+		}
 	};
 
 	static float4 from_to(const float3 & from, const float3 & to) { return rotation_quat(normalize(cross(from, to)), angle(from, to)); }
