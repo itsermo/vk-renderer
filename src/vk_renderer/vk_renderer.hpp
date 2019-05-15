@@ -121,10 +121,27 @@ namespace vk_renderer {
 			create_render_pass();
 			create_descriptor_set_layout();
 			create_graphics_pipeline();
+			create_graphics_pipeline();
 			create_command_pool();
 			create_color_resources();
 			create_depth_resources();
 			create_framebuffers();
+
+		}
+
+		void begin_frame()
+		{
+			vkDeviceWaitIdle(logical_device);
+			cleanup_sync_objects();
+			cleanup_command_buffers();
+			cleanup_descriptor_sets();
+			cleanup_descriptor_pool();
+			cleanup_uniform_buffers();
+			cleanup_models();
+		}
+
+		void end_frame()
+		{
 			load_models();
 			create_uniform_buffers();
 			create_descriptor_pool();
@@ -140,33 +157,16 @@ namespace vk_renderer {
 			vkDestroySwapchainKHR(logical_device, swap_chain, nullptr);
 
 			cleanup_models();
+			cleanup_descriptor_sets();
+			cleanup_descriptor_pool();
+			cleanup_sync_objects();
+			cleanup_command_pool();
+			cleanup_descriptor_set_layout();
+			cleanup_logical_device();
+			cleanup_validation_layers();
 
-			vkDestroyDescriptorPool(logical_device, descriptor_pool, nullptr);
-
-			vkDestroyDescriptorSetLayout(logical_device, descriptor_set_layout, nullptr);
-
-			for (size_t i = 0; i < swap_chain_images.size(); i++) {
-				vkDestroyBuffer(logical_device, uniform_buffers[i], nullptr);
-				vkFreeMemory(logical_device, uniform_buffer_memories[i], nullptr);
-			}
-
-			for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-				vkDestroyFence(logical_device, in_flight_fences[i], nullptr);
-				vkDestroySemaphore(logical_device, render_finished_semaphores[i], nullptr);
-				vkDestroySemaphore(logical_device, image_available_semaphores[i], nullptr);
-			}
-
-			vkDestroyCommandPool(logical_device, command_pool, nullptr);
-
-			vkDestroyDevice(logical_device, nullptr);
-
-			if (enable_validation_layers) {
-				DestroyDebugUtilsMessengerEXT(vulkan_instance, callback, nullptr);
-			}
-
-			vkDestroySurfaceKHR(vulkan_instance, surface, nullptr);
-
-			vkDestroyInstance(vulkan_instance, nullptr);
+			cleanup_surface();
+			cleanup_vulkan_instance();
 
 			glfwDestroyWindow(window);
 
@@ -188,6 +188,19 @@ namespace vk_renderer {
 			glfwSetScrollCallback(window, mouse_scroll_callback);
 			glfwSetCursorPosCallback(window, mouse_pos_callback);
 			glfwSetKeyCallback(window, key_callback);
+		}
+
+		void swap_buffers()
+		{
+			glfwPollEvents();
+
+			float current_frame_timestamp = static_cast<float>(glfwGetTime());
+			delta_time = current_frame_timestamp - previous_frame_timestamp;
+			previous_frame_timestamp = current_frame_timestamp;
+
+			process_input();
+
+			draw_frame();
 		}
 
 		void main_loop() {
@@ -267,7 +280,7 @@ namespace vk_renderer {
 		const int WINDOW_WIDTH{ 800 };
 		const int WINDOW_HEIGHT{ 600 };
 		const std::string MODEL_PATH = "resources/models/cube.obj";
-		const std::string TEXTURE_PATH = "resources/textures/statue.jpg";
+		const std::string TEXTURE_PATH = "resources/textures/venus.jpg";
 		const float QUEUE_PRIORITY{ 1.0f };
 		const size_t MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -1287,7 +1300,7 @@ namespace vk_renderer {
 			buffer_info.usage = usage_flags;
 			buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-			CHECK_VK(vkCreateBuffer(logical_device, &buffer_info, nullptr, &buffer), "Could not create vulkan verte buffer");
+			CHECK_VK(vkCreateBuffer(logical_device, &buffer_info, nullptr, &buffer), "Could not create vulkan vertex buffer");
 
 			VkMemoryRequirements mem_requirements = {};
 			vkGetBufferMemoryRequirements(logical_device, buffer, &mem_requirements);
@@ -1938,7 +1951,6 @@ namespace vk_renderer {
 
 		void load_models()
 		{
-
 			engine_model the_engine_model{ utils::load_obj_file_to_memory(MODEL_PATH, "chalet") };
 
 			std::tie(the_engine_model.vertex_buffer, the_engine_model.vertex_buffer_memory) = create_vertex_buffer(the_engine_model.vertices);
@@ -2116,6 +2128,77 @@ namespace vk_renderer {
 
 				vkDestroySampler(logical_device, model.texture_sampler, nullptr);
 			}
+
+			models.clear();
+		}
+
+		void cleanup_descriptor_pool()
+		{
+			vkDestroyDescriptorPool(logical_device, descriptor_pool, nullptr);
+		}
+
+		void cleanup_descriptor_set_layout()
+		{
+			vkDestroyDescriptorSetLayout(logical_device, descriptor_set_layout, nullptr);
+		}
+
+		void cleanup_descriptor_sets()
+		{
+			vkFreeDescriptorSets(logical_device, descriptor_pool, static_cast<uint32_t>(descriptor_sets.size()), descriptor_sets.data());
+		}
+
+		void cleanup_sync_objects()
+		{
+			for (size_t i = 0; i < in_flight_fences.size(); i++) {
+				vkDestroyFence(logical_device, in_flight_fences[i], nullptr);
+				vkDestroySemaphore(logical_device, render_finished_semaphores[i], nullptr);
+				vkDestroySemaphore(logical_device, image_available_semaphores[i], nullptr);
+			}
+		}
+
+		void cleanup_command_pool()
+		{
+			vkDestroyCommandPool(logical_device, command_pool, nullptr);
+		}
+
+		void cleanup_command_buffers()
+		{
+			vkFreeCommandBuffers(logical_device, command_pool, static_cast<uint32_t>(command_buffers.size()), command_buffers.data());
+		}
+
+		void cleanup_uniform_buffers()
+		{
+			for (auto mem : uniform_buffer_memories)
+			{
+				vkFreeMemory(logical_device, mem, nullptr);
+			}
+
+			for (auto buff : uniform_buffers)
+			{
+				vkDestroyBuffer(logical_device, buff, nullptr);
+			}
+		}
+
+		void cleanup_logical_device()
+		{
+			vkDestroyDevice(logical_device, nullptr);
+		}
+
+		void cleanup_validation_layers()
+		{
+			if (enable_validation_layers) {
+				DestroyDebugUtilsMessengerEXT(vulkan_instance, callback, nullptr);
+			}
+		}
+
+		void cleanup_surface()
+		{
+			vkDestroySurfaceKHR(vulkan_instance, surface, nullptr);
+		}
+
+		void cleanup_vulkan_instance()
+		{
+			vkDestroyInstance(vulkan_instance, nullptr);
 		}
 	};
 }

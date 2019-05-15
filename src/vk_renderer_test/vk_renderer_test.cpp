@@ -12,12 +12,13 @@ int main() try
 	//renderer.init_window(WINDOW_WIDTH, WINDOW_HEIGHT);
 	renderer.init_vulkan(nullptr, 300, 300, 1024, 768);
 
-	//while (true)
-	//{
-		renderer.main_loop();
-	//}
+	while (true)
+	{
+		renderer.begin_frame();
+		renderer.end_frame();
+		renderer.swap_buffers();
+	}
 
-	renderer.cleanup();
 	// while true
 	//   begin frame
 	//   begin shader
@@ -30,6 +31,8 @@ int main() try
 	// destroy context
 
 	//renderer.run();
+
+	renderer.cleanup();
 
 	return EXIT_SUCCESS;
 }
