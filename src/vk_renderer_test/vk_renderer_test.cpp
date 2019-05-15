@@ -9,16 +9,14 @@ int main() try
 {
 	vk_renderer::vk_renderer renderer;
 
-	renderer.init_vulkan(nullptr, 300, 300, 1024, 768);
+	renderer.init_vulkan(nullptr, 300, 300, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	auto cube_statue = vk_renderer::utils::load_obj_file_to_memory("cube venus", "resources/models/cube.obj", "resources/textures/statue.jpg");
-	auto cube_venus = vk_renderer::utils::load_obj_file_to_memory("cube venus", "resources/models/cube.obj", "resources/textures/venus.jpg");
+	auto cube_statue = vk_renderer::utils::load_obj_file_to_memory("cube statue", MODEL_PATH, TEXTURE_PATH);
 
 	while (renderer.poll_events())
 	{
 		renderer.begin_frame();
 		renderer.add_model(cube_statue);
-		renderer.add_model(cube_venus);
 		renderer.end_frame();
 		renderer.draw_frame();
 	}

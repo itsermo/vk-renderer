@@ -121,7 +121,6 @@ namespace vk_renderer {
 			create_render_pass();
 			create_descriptor_set_layout();
 			create_graphics_pipeline();
-			create_graphics_pipeline();
 			create_command_pool();
 			create_color_resources();
 			create_depth_resources();
@@ -134,8 +133,8 @@ namespace vk_renderer {
 			vkDeviceWaitIdle(logical_device);
 			cleanup_sync_objects();
 			cleanup_command_buffers();
-			cleanup_descriptor_sets();
-			cleanup_descriptor_pool();
+			if(descriptor_sets.size() > 0) cleanup_descriptor_sets();
+			if(descriptor_pool)	cleanup_descriptor_pool();
 			cleanup_uniform_buffers();
 			cleanup_models();
 		}
@@ -234,19 +233,25 @@ namespace vk_renderer {
 
 		void cleanup() {
 
+			vkDeviceWaitIdle(logical_device);
+
+			cleanup_sync_objects();
+			if (descriptor_sets.size() > 0) cleanup_descriptor_sets();
+			if (descriptor_pool) cleanup_descriptor_pool();
+			cleanup_uniform_buffers();
+			cleanup_models();
+
+			cleanup_descriptor_set_layout();
+
 			cleanup_swap_chain();
 			vkDestroySwapchainKHR(logical_device, swap_chain, nullptr);
 
-			cleanup_models();
-			cleanup_descriptor_sets();
-			cleanup_descriptor_pool();
-			cleanup_sync_objects();
 			cleanup_command_pool();
-			cleanup_descriptor_set_layout();
 			cleanup_logical_device();
+			cleanup_surface();
+
 			cleanup_validation_layers();
 
-			cleanup_surface();
 			cleanup_vulkan_instance();
 
 			glfwDestroyWindow(window);
@@ -1891,8 +1896,9 @@ namespace vk_renderer {
 			pool_info.poolSizeCount = static_cast<uint32_t>(pool_sizes.size());
 			pool_info.pPoolSizes = pool_sizes.data();
 			pool_info.maxSets = static_cast<uint32_t>(swap_chain_images.size());
+			pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
-			CHECK_VK(vkCreateDescriptorPool(logical_device, &pool_info, nullptr, &descriptor_pool), "Could not reate desriptor pool");
+			CHECK_VK(vkCreateDescriptorPool(logical_device, &pool_info, nullptr, &descriptor_pool), "Could not create vulkan descriptor pool");
 		}
 
 		void create_descriptor_sets()
