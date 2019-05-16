@@ -83,8 +83,6 @@ namespace vk_renderer {
 		//    6,2,1
 		//};
 
-
-
 		struct QueueFamilyIndices {
 			std::optional<uint32_t> graphics_family;
 			std::optional<uint32_t> present_family;
@@ -126,17 +124,18 @@ namespace vk_renderer {
 			create_depth_resources();
 			create_framebuffers();
 			setup_camera();
+			create_command_buffers();
+			create_sync_objects();
+			create_descriptor_pool();
+			create_descriptor_sets();
 		}
 
 		void begin_frame()
 		{
 			vkDeviceWaitIdle(logical_device);
-			cleanup_sync_objects();
-			cleanup_command_buffers();
-			if(descriptor_sets.size() > 0) cleanup_descriptor_sets();
-			if(descriptor_pool)	cleanup_descriptor_pool();
+
+			reset_command_buffers();
 			cleanup_uniform_buffers();
-			cleanup_models();
 		}
 
 		void add_model(const model & the_model)
@@ -161,13 +160,17 @@ namespace vk_renderer {
 			model_draw_queue.push_back(&model_cache.back());
 		}
 
+		void set_view_proj_from_camera()
+		{
+			view_matrix = cam.get_view_matrix();
+			projection_matrix = cam.get_projection_matrix();
+		}
+
 		void end_frame()
 		{
 			create_uniform_buffers();
-			create_descriptor_pool();
-			create_descriptor_sets();
-			create_command_buffers();
-			create_sync_objects();
+			update_descriptor_sets();
+			fill_command_buffers();
 		}
 
 		void draw_frame()
@@ -316,11 +319,13 @@ namespace vk_renderer {
 
 		pose get_camera_pose() const { return cam.get_pose(); }
 
-		void set_camera_fov_deg(float fov_deg) { this->fov_deg = fov_deg; }
-		float get_camera_fov_deg() { return fov_deg; }
+		void set_camera_fov_deg(float fov_deg) { this->cam.fov_deg = fov_deg; }
+		float get_camera_fov_deg() const { return cam.fov_deg; }
 
 	private:
 
+		float4x4 projection_matrix{ linalg::identity };
+		float4x4 view_matrix{ linalg::identity };
 
 		static VkVertexInputBindingDescription get_vertex_binding_description() {
 			VkVertexInputBindingDescription binding_description = {};
@@ -421,7 +426,7 @@ namespace vk_renderer {
 
 		// camera
 		uniform_buffer_object mvp{};
-		float fov_deg{ 45.0f };
+		//float fov_deg{ 45.0f };
 		camera cam;
 		float delta_time{};
 		float previous_frame_timestamp{};
@@ -837,7 +842,6 @@ namespace vk_renderer {
 			return indices;
 		}
 
-
 		VkSurfaceFormatKHR choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& available_formats) {
 			if (available_formats.size() == 1 && available_formats[0].format == VK_FORMAT_UNDEFINED) {
 				return { VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
@@ -853,13 +857,13 @@ namespace vk_renderer {
 		}
 
 		VkPresentModeKHR choose_swap_present_mode(const std::vector<VkPresentModeKHR> available_present_modes) {
-			VkPresentModeKHR best_mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+			VkPresentModeKHR best_mode = VK_PRESENT_MODE_FIFO_KHR;
 
 			for (const auto& available_present_mode : available_present_modes) {
-				if (available_present_mode == VK_PRESENT_MODE_FIFO_KHR) {
+				if (available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR) {
 					return available_present_mode;
 				}
-				else if (available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR) {
+				else if (available_present_mode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
 					best_mode = available_present_mode;
 				}
 			}
@@ -986,6 +990,8 @@ namespace vk_renderer {
 
 			swap_chain_image_format = surface_format.format;
 			swap_chain_extent = extent;
+
+			cam.aspect = static_cast<float>(extent.width) / extent.height;
 		}
 
 		void create_image_views()
@@ -1341,7 +1347,7 @@ namespace vk_renderer {
 			VkCommandPoolCreateInfo pool_info = {};
 			pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 			pool_info.queueFamilyIndex = queue_family_indices.graphics_family.value();
-			pool_info.flags = 0; // Optional
+			pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; // Optional
 
 			CHECK_VK(vkCreateCommandPool(logical_device, &pool_info, nullptr, &command_pool), "Could not create vulkan command pool");
 		}
@@ -1912,7 +1918,10 @@ namespace vk_renderer {
 
 			descriptor_sets.resize(swap_chain_images.size());
 			CHECK_VK(vkAllocateDescriptorSets(logical_device, &alloc_info, descriptor_sets.data()), "Could not allocate vulkan descriptor sets")
+		}
 
+		void update_descriptor_sets()
+		{
 			for (size_t i = 0; i < swap_chain_images.size(); i++) {
 
 				VkDescriptorBufferInfo buffer_info = {};
@@ -1947,25 +1956,15 @@ namespace vk_renderer {
 			}
 		}
 
-		void create_command_buffers()
+		void fill_command_buffers()
 		{
-			command_buffers.resize(swap_chain_framebuffers.size());
-
-			VkCommandBufferAllocateInfo alloc_info = {};
-			alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			alloc_info.commandPool = command_pool;
-			alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			alloc_info.commandBufferCount = (uint32_t)command_buffers.size();
-
-			CHECK_VK(vkAllocateCommandBuffers(logical_device, &alloc_info, command_buffers.data()), "Could not allocate vulkan command buffers");
-
 			for (size_t i = 0; i < command_buffers.size(); i++) {
 				VkCommandBufferBeginInfo begin_info = {};
 				begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 				begin_info.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 				begin_info.pInheritanceInfo = nullptr; // Optional
 
-				CHECK_VK(vkBeginCommandBuffer(command_buffers[i], &begin_info), "Could not begin vulkan recording of command buffer " + std::to_string(i));
+				CHECK_VK(vkBeginCommandBuffer(command_buffers[i], &begin_info), "Could not begin recording of vulkan command buffer " + std::to_string(i));
 
 				VkViewport viewport = {};
 				viewport.height = static_cast<float>(swap_chain_extent.height);
@@ -2004,9 +2003,29 @@ namespace vk_renderer {
 				vkCmdDrawIndexed(command_buffers[i], static_cast<uint32_t>(model_draw_queue[0]->indices.size()), 1, 0, 0, 0);
 
 				vkCmdEndRenderPass(command_buffers[i]);
-
+				
 				CHECK_VK(vkEndCommandBuffer(command_buffers[i]), "Could not end vulkan command buffer " + std::to_string(i));
 			}
+		}
+
+		void reset_command_buffers()
+		{
+			for (size_t i = 0; i < command_buffers.size(); i++) {
+				CHECK_VK(vkResetCommandBuffer(command_buffers[i], VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT), "Could not reset vulkan command buffer");
+			}
+		}
+
+		void create_command_buffers()
+		{
+			command_buffers.resize(swap_chain_framebuffers.size());
+
+			VkCommandBufferAllocateInfo alloc_info = {};
+			alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+			alloc_info.commandPool = command_pool;
+			alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			alloc_info.commandBufferCount = (uint32_t)command_buffers.size();
+
+			CHECK_VK(vkAllocateCommandBuffers(logical_device, &alloc_info, command_buffers.data()), "Could not allocate vulkan command buffers");
 		}
 
 		void create_sync_objects()
@@ -2026,7 +2045,6 @@ namespace vk_renderer {
 				CHECK_VK(vkCreateSemaphore(logical_device, &semaphore_info, nullptr, &render_finished_semaphores[i]), "Could not create vulkan render fininshed synchronization semaphore");
 				CHECK_VK(vkCreateFence(logical_device, &fence_info, nullptr, &in_flight_fences[i]), "Could not create vulkan in flight fence");
 			}
-
 		}
 
 		void setup_camera()
@@ -2039,11 +2057,6 @@ namespace vk_renderer {
 
 		void update_uniform_buffer(uint32_t current_image)
 		{
-			//static auto start_time = std::chrono::high_resolution_clock::now();
-
-			//auto current_time = std::chrono::high_resolution_clock::now();
-			//float time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
-
 			const auto & engine_to_vk = make_transform(engine_coordinate_system, vk_coordinate_system);
 			const auto & engine_to_vk_mat = float4x4{
 				float4 { engine_to_vk.x, 0 },
@@ -2060,18 +2073,14 @@ namespace vk_renderer {
 					float4 { 0, 0, 0, 1 }
 			};
 
-			const float DEG_TO_RAD = 0.017453292519943295769236907684886f;
-			//mvp.model = linalg::pose_matrix(
-			//    linalg::rotation_quat(models[0].coordinate_system.get_up(), time * 90.0f * DEG_TO_RAD * 0.25f),
-			//    float3{ 0,0,0 });
 			mvp.model = linalg::identity;
 			mvp.model = linalg::mul(model_to_engine_mat, mvp.model);
-			mvp.view = linalg::mul(engine_to_vk_mat, cam.get_view_matrix());
-			mvp.proj = linalg::perspective_matrix(fov_deg * DEG_TO_RAD, swap_chain_extent.width / static_cast<float>(swap_chain_extent.height), 0.1f, 10.0f, linalg::pos_z, linalg::zero_to_one);
+			mvp.view = linalg::mul(engine_to_vk_mat, view_matrix);
+			mvp.projection = projection_matrix;
 
-			void* data;
-			vkMapMemory(logical_device, uniform_buffer_memories[current_image], 0, sizeof(mvp), 0, &data);
-			memcpy(data, &mvp, sizeof(mvp));
+			void* uniform_buffer_data;
+			CHECK_VK(vkMapMemory(logical_device, uniform_buffer_memories[current_image], 0, sizeof(mvp), 0, &uniform_buffer_data), "Could not map vulkan uniform buffer memories");
+			memcpy(uniform_buffer_data, &mvp, sizeof(mvp));
 			vkUnmapMemory(logical_device, uniform_buffer_memories[current_image]);
 		}
 

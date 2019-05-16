@@ -15,10 +15,18 @@ int main() try
 
 	while (renderer.poll_events())
 	{
+		auto start_time = std::chrono::high_resolution_clock::now();
+
 		renderer.begin_frame();
+		renderer.set_view_proj_from_camera();
 		renderer.add_model(cube_statue);
 		renderer.end_frame();
 		renderer.draw_frame();
+
+		auto current_time = std::chrono::high_resolution_clock::now();
+		float time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - start_time).count();
+
+		std::cout << "Rendering Speed: " << 1/time << " FPS\r";
 	}
 
 	renderer.cleanup();

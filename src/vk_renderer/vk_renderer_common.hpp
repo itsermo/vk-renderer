@@ -8,6 +8,8 @@ using namespace linalg::aliases;
 
 namespace vk_renderer
 {
+	const float DEG_TO_RAD = 0.017453292519943295769236907684886f;
+
 	struct vertex
 	{
 		float3 pos;
@@ -58,7 +60,6 @@ namespace vk_renderer
 		model* parent;
 	};
 
-
 	struct pose
 	{
 		float3 pos{ 0,0,0 };
@@ -80,11 +81,15 @@ namespace vk_renderer
 	{
 		float3 position;
 		float pitch = 0, yaw = 0;
+		float fov_deg = 45.0f;
+		float aspect = 4.0f / 3.0f;
+		float near = 0.03f, far = 10.0f;
 
 		float4 get_orientation() const { return qmul(rotation_quat(engine_coordinate_system.get_up(), yaw), rotation_quat(engine_coordinate_system.get_right(), pitch)); }
 		pose get_pose() const { return { position, get_orientation() }; }
 		float4x4 get_pose_matrix() const { return pose_matrix(get_orientation(), position); }
 		float4x4 get_view_matrix() const { return inverse(get_pose_matrix()); }
+		float4x4 get_projection_matrix() const { return linalg::perspective_matrix(fov_deg * DEG_TO_RAD, aspect, near, far, linalg::pos_z, linalg::zero_to_one); };
 
 		void move_local(const float3 & step)
 		{
@@ -109,9 +114,9 @@ namespace vk_renderer
 
 	struct uniform_buffer_object
 	{
-		float4x4 model{ linalg::identity };
-		float4x4 view{ linalg::identity };
-		float4x4 proj{ linalg::identity };
+		float4x4 model { linalg::identity };
+		float4x4 view { linalg::identity };
+		float4x4 projection { linalg::identity };
 	};
 }
 
