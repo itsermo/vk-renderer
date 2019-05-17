@@ -55,8 +55,7 @@ namespace vk_renderer
 		int texture_height{};
 		int texture_num_chan{};
 		uint32_t mip_levels{};
-		coord_system coordinate_system{ coord_axis::right, coord_axis::up, coord_axis::back };
-		float3x4 transform;
+		float4x4 transform{ linalg::identity };
 		model* parent;
 	};
 

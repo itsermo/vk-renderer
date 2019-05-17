@@ -106,7 +106,7 @@ namespace vk_renderer::utils
 		return pix_vec;
 	}
 
-	static inline model load_obj_file_to_memory(const std::string & obj_id, const std::string & obj_file_path, const coord_system coords = { coord_axis::forward, coord_axis::left, coord_axis::up })
+	static inline model load_obj_file_to_memory(const std::string & obj_id, const std::string & obj_file_path, const coord_system & model_coordinate_system, const coord_system & engine_coordinate_system)
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -119,18 +119,24 @@ namespace vk_renderer::utils
 
 		model the_model{};
 		the_model.id = obj_id;
-		the_model.coordinate_system = coords;
+
+		const auto & model_to_engine = make_transform(model_coordinate_system, engine_coordinate_system);
+		const auto & model_to_engine_mat = float4x3{
+				float4 { model_to_engine.x, 0 },
+				float4 { model_to_engine.y, 0 },
+				float4 { model_to_engine.z, 0 }
+		};
 
 		std::unordered_map<vertex, uint32_t> unique_vertices = {};
 		for (const auto& shape : shapes) {
 			for (const auto& index : shape.mesh.indices) {
 				vertex vert = {};
 
-				vert.pos = {
+				vert.pos = linalg::mul(model_to_engine_mat, {
 					attrib.vertices[3 * index.vertex_index + 0],
 					attrib.vertices[3 * index.vertex_index + 1],
 					attrib.vertices[3 * index.vertex_index + 2]
-				};
+				}).xyz();
 
 				vert.tex_coord = {
 					attrib.texcoords[2 * index.texcoord_index + 0],
@@ -151,9 +157,9 @@ namespace vk_renderer::utils
 		return the_model;
 	}
 
-	static inline model load_obj_file_to_memory(const std::string & obj_id, const std::string & obj_file_path, const std::string & texture_file_path, const coord_system coords = { coord_axis::forward, coord_axis::left, coord_axis::up })
+	static inline model load_obj_file_to_memory(const std::string & obj_id, const std::string & obj_file_path, const std::string & texture_file_path, const coord_system & model_coordinate_system, const coord_system & engine_coordinate_system)
 	{
-		auto the_model = load_obj_file_to_memory(obj_id, obj_file_path);
+		auto the_model = load_obj_file_to_memory(obj_id, obj_file_path, model_coordinate_system, engine_coordinate_system);
 
 		size_t image_size{};
 		the_model.texture_data = utils::load_image_file_to_memory(texture_file_path, the_model.texture_width, the_model.texture_height, the_model.texture_num_chan, image_size);

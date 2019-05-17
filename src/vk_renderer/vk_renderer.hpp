@@ -128,6 +128,7 @@ namespace vk_renderer {
 			create_sync_objects();
 			create_descriptor_pool();
 			create_descriptor_sets();
+			create_uniform_buffers();
 		}
 
 		void begin_frame()
@@ -135,15 +136,31 @@ namespace vk_renderer {
 			vkDeviceWaitIdle(logical_device);
 
 			reset_command_buffers();
-			cleanup_uniform_buffers();
+			model_draw_queue.clear();
+			//cleanup_uniform_buffers();
 		}
 
 		void add_model(const model & the_model)
 		{
-			for (auto & m : model_cache)
+			for (auto it = model_cache.begin(); it != model_cache.end(); it++)
 			{
-				if (the_model.id == m.id) {
-					model_draw_queue.push_back(&m);
+				if (the_model.id == it->id) {
+					if (
+						it->vertices.size() != the_model.vertices.size() ||
+						it->indices.size() != the_model.indices.size() ||
+						it->mip_levels != the_model.mip_levels ||
+						it->texture_width != the_model.texture_width ||
+						it->texture_height != the_model.texture_height ||
+						it->texture_data != the_model.texture_data ||
+						it->texture_num_chan != the_model.texture_num_chan
+						)
+					{
+						model_cache.erase(it);
+						break;
+					}
+
+					it->transform = the_model.transform;
+					model_draw_queue.push_back(&*it);
 					return;
 				}
 			}
@@ -168,7 +185,6 @@ namespace vk_renderer {
 
 		void end_frame()
 		{
-			create_uniform_buffers();
 			update_descriptor_sets();
 			fill_command_buffers();
 		}
@@ -2065,16 +2081,7 @@ namespace vk_renderer {
 				float4 { 0, 0, 0, 1 }
 			};
 
-			const auto & model_to_engine = make_transform(model_draw_queue[0]->coordinate_system, engine_coordinate_system);
-			const auto & model_to_engine_mat = float4x4{
-					float4 { model_to_engine.x, 0 },
-					float4 { model_to_engine.y, 0 },
-					float4 { model_to_engine.z, 0 },
-					float4 { 0, 0, 0, 1 }
-			};
-
-			mvp.model = linalg::identity;
-			mvp.model = linalg::mul(model_to_engine_mat, mvp.model);
+			mvp.model = model_draw_queue[0]->transform;
 			mvp.view = linalg::mul(engine_to_vk_mat, view_matrix);
 			mvp.projection = projection_matrix;
 
