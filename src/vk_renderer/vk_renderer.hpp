@@ -177,6 +177,12 @@ namespace vk_renderer {
 			model_draw_queue.push_back(&model_cache.back());
 		}
 
+		void set_view_proj(const float4x4 & view_matrix, const float4x4 & projection_matrix)
+		{
+			this->view_matrix = view_matrix;
+			this->projection_matrix = projection_matrix;
+		}
+
 		void set_view_proj_from_camera()
 		{
 			view_matrix = cam.get_view_matrix();
