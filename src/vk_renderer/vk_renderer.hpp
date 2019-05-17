@@ -106,9 +106,10 @@ namespace vk_renderer {
 
 			if (!logical_device)
 			{
-				init_window(x_pos, y_pos, width, height);
+				glfwInit();
 				create_vulkan_instance();
 				setup_debug_callback();
+				init_window(x_pos, y_pos, width, height);
 				create_surface();
 				select_physical_device();
 				create_logical_device();
@@ -144,37 +145,39 @@ namespace vk_renderer {
 		{
 			for (auto it = model_cache.begin(); it != model_cache.end(); it++)
 			{
-				if (the_model.id == it->id) {
+				auto m = *it;
+				if (the_model.id == m->id) {
 					if (
-						it->vertices.size() != the_model.vertices.size() ||
-						it->indices.size() != the_model.indices.size() ||
-						it->mip_levels != the_model.mip_levels ||
-						it->texture_width != the_model.texture_width ||
-						it->texture_height != the_model.texture_height ||
-						it->texture_data != the_model.texture_data ||
-						it->texture_num_chan != the_model.texture_num_chan
+						m->vertices.size() != the_model.vertices.size() ||
+						m->indices.size() != the_model.indices.size() ||
+						m->mip_levels != the_model.mip_levels ||
+						m->texture_width != the_model.texture_width ||
+						m->texture_height != the_model.texture_height ||
+						m->texture_data != the_model.texture_data ||
+						m->texture_num_chan != the_model.texture_num_chan
 						)
 					{
 						model_cache.erase(it);
 						break;
 					}
 
-					it->transform = the_model.transform;
-					model_draw_queue.push_back(&*it);
+					m->transform = the_model.transform;
+					model_draw_queue.push_back(m);
 					return;
 				}
 			}
 
-			engine_model the_engine_model{ the_model };
+			std::shared_ptr<engine_model> the_engine_model{ new engine_model { the_model } };
 
-			std::tie(the_engine_model.vertex_buffer, the_engine_model.vertex_buffer_memory) = create_vertex_buffer(the_engine_model.vertices);
-			std::tie(the_engine_model.index_buffer, the_engine_model.index_buffer_memory) = create_index_buffer(the_engine_model.indices);
+			std::tie(the_engine_model->vertex_buffer, the_engine_model->vertex_buffer_memory) = create_vertex_buffer(the_engine_model->vertices);
+			std::tie(the_engine_model->index_buffer, the_engine_model->index_buffer_memory) = create_index_buffer(the_engine_model->indices);
 
-			std::tie(the_engine_model.texture_image, the_engine_model.texture_image_memory) = create_texture_image(the_engine_model.texture_data, the_engine_model.texture_width, the_engine_model.texture_height, the_engine_model.texture_num_chan, the_engine_model.texture_data.size(), the_engine_model.mip_levels);
-			the_engine_model.texture_image_view = create_image_view(the_engine_model.texture_image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, the_engine_model.mip_levels);
-			the_engine_model.texture_sampler = create_texture_sampler(the_engine_model.mip_levels);
+			std::tie(the_engine_model->texture_image, the_engine_model->texture_image_memory) = create_texture_image(the_engine_model->texture_data, the_engine_model->texture_width, the_engine_model->texture_height, the_engine_model->texture_num_chan, the_engine_model->texture_data.size(), the_engine_model->mip_levels);
+			the_engine_model->texture_image_view = create_image_view(the_engine_model->texture_image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, the_engine_model->mip_levels);
+			the_engine_model->texture_sampler = create_texture_sampler(the_engine_model->mip_levels);
+
 			model_cache.push_back(the_engine_model);
-			model_draw_queue.push_back(&model_cache.back());
+			model_draw_queue.push_back(the_engine_model);
 		}
 
 		void set_view_proj(const float4x4 & view_matrix, const float4x4 & projection_matrix)
@@ -210,11 +213,11 @@ namespace vk_renderer {
 				throw std::runtime_error("Could not acquire vulkan swap chain image");
 			}
 
-			update_uniform_buffer(image_index);
-
 			VkSemaphore signal_semaphores[] = { render_finished_semaphores[current_frame] };
 			VkSemaphore wait_semaphores[] = { image_available_semaphores[current_frame] };
 			VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+
+			update_uniform_buffer(0, image_index);
 
 			VkSubmitInfo submit_info = {};
 			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -254,8 +257,6 @@ namespace vk_renderer {
 			current_frame = (current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 		}
 
-
-
 		void cleanup() {
 
 			vkDeviceWaitIdle(logical_device);
@@ -285,7 +286,6 @@ namespace vk_renderer {
 		}
 
 		void init_window(int x_pos, int y_pos, int width, int height) {
-			glfwInit();
 
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 			glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -387,13 +387,9 @@ namespace vk_renderer {
 			VkSampler texture_sampler{ VK_NULL_HANDLE };
 		};
 
-
-
 		const coord_system vk_coordinate_system{ coord_axis::right, coord_axis::down, coord_axis::forward };
 		const int WINDOW_WIDTH{ 800 };
 		const int WINDOW_HEIGHT{ 600 };
-		const std::string MODEL_PATH = "resources/models/cube.obj";
-		const std::string TEXTURE_PATH = "resources/textures/venus.jpg";
 		const float QUEUE_PRIORITY{ 1.0f };
 		const size_t MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -443,8 +439,8 @@ namespace vk_renderer {
 		VkDescriptorPool descriptor_pool{ VK_NULL_HANDLE };
 		std::vector<VkDescriptorSet> descriptor_sets{};
 
-		std::vector<engine_model> model_cache{};
-		std::vector<engine_model*> model_draw_queue{};
+		std::vector<std::shared_ptr<engine_model>> model_cache{};
+		std::vector<std::shared_ptr<engine_model>> model_draw_queue{};
 
 		// camera
 		uniform_buffer_object mvp{};
@@ -2011,21 +2007,29 @@ namespace vk_renderer {
 				render_pass_info.pClearValues = clear_values.data();
 
 				vkCmdBeginRenderPass(command_buffers[i], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
-
 				vkCmdBindPipeline(command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
 
-				VkBuffer vertex_buffers[] = { model_draw_queue[0]->vertex_buffer };
-				VkDeviceSize offsets[] = { 0 };
-				vkCmdBindVertexBuffers(command_buffers[i], 0, 1, vertex_buffers, offsets);
+				std::vector<VkBuffer> vertex_buffers;
+				std::vector<VkDeviceSize> offsets;
+				for (size_t j = 0; j < model_draw_queue.size(); j++)
+				{
+					vertex_buffers.push_back(model_draw_queue[j]->vertex_buffer);
+					offsets.push_back(j);
+				}
 
-				vkCmdBindIndexBuffer(command_buffers[i], model_draw_queue[0]->index_buffer, 0, VK_INDEX_TYPE_UINT32);
+				vkCmdBindVertexBuffers(command_buffers[i], 0, static_cast<uint32_t>(vertex_buffers.size()), vertex_buffers.data(), offsets.data());
 
 				//vkCmdDraw(command_buffers[i], static_cast<uint32_t>(VERTICES.size()), 1, 0, 0);
 				vkCmdBindDescriptorSets(command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[i], 0, nullptr);
-				vkCmdDrawIndexed(command_buffers[i], static_cast<uint32_t>(model_draw_queue[0]->indices.size()), 1, 0, 0, 0);
+
+				for (size_t j = 0; j < model_draw_queue.size(); j++)
+				{
+					vkCmdBindIndexBuffer(command_buffers[i], model_draw_queue[j]->index_buffer, 0, VK_INDEX_TYPE_UINT32);
+					vkCmdDrawIndexed(command_buffers[i], static_cast<uint32_t>(model_draw_queue[j]->indices.size()), 1, 0, j, 0);
+				}
 
 				vkCmdEndRenderPass(command_buffers[i]);
-				
+
 				CHECK_VK(vkEndCommandBuffer(command_buffers[i]), "Could not end vulkan command buffer " + std::to_string(i));
 			}
 		}
@@ -2077,7 +2081,7 @@ namespace vk_renderer {
 			cam.look_at({ 0,0,0 });
 		}
 
-		void update_uniform_buffer(uint32_t current_image)
+		void update_uniform_buffer(int model_index, uint32_t current_image)
 		{
 			const auto & engine_to_vk = make_transform(engine_coordinate_system, vk_coordinate_system);
 			const auto & engine_to_vk_mat = float4x4{
@@ -2087,7 +2091,7 @@ namespace vk_renderer {
 				float4 { 0, 0, 0, 1 }
 			};
 
-			mvp.model = model_draw_queue[0]->transform;
+			mvp.model = model_draw_queue[model_index]->transform;
 			mvp.view = linalg::mul(engine_to_vk_mat, view_matrix);
 			mvp.projection = projection_matrix;
 
@@ -2150,18 +2154,18 @@ namespace vk_renderer {
 		{
 			for (auto model : model_cache)
 			{
-				vkDestroyImageView(logical_device, model.texture_image_view, nullptr);
+				vkDestroyImageView(logical_device, model->texture_image_view, nullptr);
 
-				vkDestroyImage(logical_device, model.texture_image, nullptr);
-				vkFreeMemory(logical_device, model.texture_image_memory, nullptr);
+				vkDestroyImage(logical_device, model->texture_image, nullptr);
+				vkFreeMemory(logical_device, model->texture_image_memory, nullptr);
 
-				vkDestroyBuffer(logical_device, model.index_buffer, nullptr);
-				vkFreeMemory(logical_device, model.index_buffer_memory, nullptr);
+				vkDestroyBuffer(logical_device, model->index_buffer, nullptr);
+				vkFreeMemory(logical_device, model->index_buffer_memory, nullptr);
 
-				vkDestroyBuffer(logical_device, model.vertex_buffer, nullptr);
-				vkFreeMemory(logical_device, model.vertex_buffer_memory, nullptr);
+				vkDestroyBuffer(logical_device, model->vertex_buffer, nullptr);
+				vkFreeMemory(logical_device, model->vertex_buffer_memory, nullptr);
 
-				vkDestroySampler(logical_device, model.texture_sampler, nullptr);
+				vkDestroySampler(logical_device, model->texture_sampler, nullptr);
 			}
 
 			model_cache.clear();
