@@ -128,8 +128,8 @@ namespace vk_renderer {
 			create_command_buffers();
 			create_sync_objects();
 			create_descriptor_pool();
-			create_descriptor_sets();
-			create_uniform_buffers();
+			//create_descriptor_sets();
+			//create_uniform_buffers();
 		}
 
 		void begin_frame()
@@ -176,6 +176,9 @@ namespace vk_renderer {
 			the_engine_model->texture_image_view = create_image_view(the_engine_model->texture_image, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, the_engine_model->mip_levels);
 			the_engine_model->texture_sampler = create_texture_sampler(the_engine_model->mip_levels);
 
+			the_engine_model->descriptor_sets = create_descriptor_sets();
+			std::tie(the_engine_model->uniform_buffers, the_engine_model->uniform_buffer_memories) = create_uniform_buffer();
+
 			model_cache.push_back(the_engine_model);
 			model_draw_queue.push_back(the_engine_model);
 		}
@@ -194,7 +197,11 @@ namespace vk_renderer {
 
 		void end_frame()
 		{
-			update_descriptor_sets();
+			for (size_t i = 0; i < model_draw_queue.size(); i++)
+			{
+				update_descriptor_sets(i);
+			}
+
 			fill_command_buffers();
 		}
 
@@ -217,7 +224,10 @@ namespace vk_renderer {
 			VkSemaphore wait_semaphores[] = { image_available_semaphores[current_frame] };
 			VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
-			update_uniform_buffer(0, image_index);
+			for (size_t m = 0; m < model_draw_queue.size(); m++)
+			{
+				update_uniform_buffer(m, image_index);
+			}
 
 			VkSubmitInfo submit_info = {};
 			submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -262,10 +272,9 @@ namespace vk_renderer {
 			vkDeviceWaitIdle(logical_device);
 
 			cleanup_sync_objects();
-			if (descriptor_sets.size() > 0) cleanup_descriptor_sets();
-			if (descriptor_pool) cleanup_descriptor_pool();
-			cleanup_uniform_buffers();
 			cleanup_models();
+
+			if (descriptor_pool) cleanup_descriptor_pool();
 
 			cleanup_descriptor_set_layout();
 
@@ -377,6 +386,9 @@ namespace vk_renderer {
 		}
 
 		struct engine_model : model {
+			std::vector<VkBuffer> uniform_buffers{};
+			std::vector<VkDeviceMemory> uniform_buffer_memories{};
+			std::vector<VkDescriptorSet> descriptor_sets{};
 			VkBuffer vertex_buffer{ VK_NULL_HANDLE };
 			VkDeviceMemory vertex_buffer_memory{ VK_NULL_HANDLE };
 			VkBuffer index_buffer{ VK_NULL_HANDLE };
@@ -434,10 +446,7 @@ namespace vk_renderer {
 		VkDeviceMemory depth_image_memory{ VK_NULL_HANDLE };
 		VkImageView depth_image_view{ VK_NULL_HANDLE };
 
-		std::vector<VkBuffer> uniform_buffers{};
-		std::vector<VkDeviceMemory> uniform_buffer_memories{};
 		VkDescriptorPool descriptor_pool{ VK_NULL_HANDLE };
-		std::vector<VkDescriptorSet> descriptor_sets{};
 
 		std::vector<std::shared_ptr<engine_model>> model_cache{};
 		std::vector<std::shared_ptr<engine_model>> model_draw_queue{};
@@ -1833,31 +1842,17 @@ namespace vk_renderer {
 			return { buffer, buffer_memory };
 		}
 
-		//void create_index_buffer()
-		//{
-		//    VkDeviceSize buffer_size = sizeof(INDICES[0]) * INDICES.size();
-		//    create_buffer(buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, index_staging_buffer, index_staging_buffer_memory);
-
-		//    void* data;
-		//    vkMapMemory(logical_device, index_staging_buffer_memory, 0, buffer_size, 0, &data);
-		//    memcpy(data, INDICES.data(), (size_t)buffer_size);
-		//    vkUnmapMemory(logical_device, index_staging_buffer_memory);
-
-		//    create_buffer(buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, index_buffer, index_buffer_memory);
-
-		//    copy_buffer(index_staging_buffer, index_buffer, buffer_size);
-
-		//}
-
-		void create_uniform_buffers() {
+		std::pair<std::vector<VkBuffer>,std::vector<VkDeviceMemory>> create_uniform_buffer() {
 			VkDeviceSize buffer_size = sizeof(uniform_buffer_object);
 
-			uniform_buffers.resize(swap_chain_images.size());
-			uniform_buffer_memories.resize(swap_chain_images.size());
+			std::vector<VkBuffer> uniform_buffers(swap_chain_images.size());
+			std::vector<VkDeviceMemory> uniform_buffer_memories(swap_chain_images.size());
 
 			for (size_t i = 0; i < swap_chain_images.size(); i++) {
 				create_buffer(buffer_size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniform_buffers[i], uniform_buffer_memories[i]);
 			}
+
+			return { uniform_buffers, uniform_buffer_memories };
 		}
 
 		VkFormat find_supported_format(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
@@ -1909,24 +1904,28 @@ namespace vk_renderer {
 
 		void create_descriptor_pool() {
 
+			VkPhysicalDeviceProperties physical_device_properties{};
+			vkGetPhysicalDeviceProperties(physical_device, &physical_device_properties);
+
 			std::array<VkDescriptorPoolSize, 2> pool_sizes = {};
 			pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			pool_sizes[0].descriptorCount = static_cast<uint32_t>(swap_chain_images.size());
+			pool_sizes[0].descriptorCount = static_cast<uint32_t>(physical_device_properties.limits.maxDescriptorSetUniformBuffers);
 			pool_sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			pool_sizes[1].descriptorCount = static_cast<uint32_t>(swap_chain_images.size());
+			pool_sizes[1].descriptorCount = static_cast<uint32_t>(physical_device_properties.limits.maxDescriptorSetSampledImages);
 
 			VkDescriptorPoolCreateInfo pool_info = {};
 			pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 			pool_info.poolSizeCount = static_cast<uint32_t>(pool_sizes.size());
 			pool_info.pPoolSizes = pool_sizes.data();
-			pool_info.maxSets = static_cast<uint32_t>(swap_chain_images.size());
+			pool_info.maxSets = static_cast<uint32_t>(physical_device_properties.limits.maxDescriptorSetUniformBuffers);
 			pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
 			CHECK_VK(vkCreateDescriptorPool(logical_device, &pool_info, nullptr, &descriptor_pool), "Could not create vulkan descriptor pool");
 		}
 
-		void create_descriptor_sets()
+		std::vector<VkDescriptorSet> create_descriptor_sets()
 		{
+			std::vector<VkDescriptorSet> descriptor_sets(swap_chain_images.size());
 			std::vector<VkDescriptorSetLayout> layouts(swap_chain_images.size(), descriptor_set_layout);
 			VkDescriptorSetAllocateInfo alloc_info = {};
 			alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -1934,28 +1933,30 @@ namespace vk_renderer {
 			alloc_info.descriptorSetCount = static_cast<uint32_t>(swap_chain_images.size());
 			alloc_info.pSetLayouts = layouts.data();
 
-			descriptor_sets.resize(swap_chain_images.size());
-			CHECK_VK(vkAllocateDescriptorSets(logical_device, &alloc_info, descriptor_sets.data()), "Could not allocate vulkan descriptor sets")
+			CHECK_VK(vkAllocateDescriptorSets(logical_device, &alloc_info, descriptor_sets.data()), "Could not allocate vulkan descriptor sets");
+
+			return descriptor_sets;
 		}
 
-		void update_descriptor_sets()
+		void update_descriptor_sets(size_t model_index)
 		{
+			auto & m = model_draw_queue[model_index];
 			for (size_t i = 0; i < swap_chain_images.size(); i++) {
 
 				VkDescriptorBufferInfo buffer_info = {};
-				buffer_info.buffer = uniform_buffers[i];
+				buffer_info.buffer = m->uniform_buffers[i];
 				buffer_info.offset = 0;
 				buffer_info.range = sizeof(uniform_buffer_object);
 
 				VkDescriptorImageInfo image_info = {};
 				image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-				image_info.imageView = model_draw_queue[0]->texture_image_view;
-				image_info.sampler = model_draw_queue[0]->texture_sampler;
+				image_info.imageView = model_draw_queue[model_index]->texture_image_view;
+				image_info.sampler = model_draw_queue[model_index]->texture_sampler;
 
 				std::array<VkWriteDescriptorSet, 2> descriptor_writes = {};
 
 				descriptor_writes[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				descriptor_writes[0].dstSet = descriptor_sets[i];
+				descriptor_writes[0].dstSet = m->descriptor_sets[i];
 				descriptor_writes[0].dstBinding = 0;
 				descriptor_writes[0].dstArrayElement = 0;
 				descriptor_writes[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1963,7 +1964,7 @@ namespace vk_renderer {
 				descriptor_writes[0].pBufferInfo = &buffer_info;
 
 				descriptor_writes[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				descriptor_writes[1].dstSet = descriptor_sets[i];
+				descriptor_writes[1].dstSet = m->descriptor_sets[i];
 				descriptor_writes[1].dstBinding = 1;
 				descriptor_writes[1].dstArrayElement = 0;
 				descriptor_writes[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -2009,23 +2010,18 @@ namespace vk_renderer {
 				vkCmdBeginRenderPass(command_buffers[i], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 				vkCmdBindPipeline(command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
 
-				std::vector<VkBuffer> vertex_buffers;
-				std::vector<VkDeviceSize> offsets;
-				for (size_t j = 0; j < model_draw_queue.size(); j++)
+				for (size_t m = 0; m < model_draw_queue.size(); m++)
 				{
-					vertex_buffers.push_back(model_draw_queue[j]->vertex_buffer);
-					offsets.push_back(j);
-				}
+					VkBuffer vertex_buffers[] { model_draw_queue[m]->vertex_buffer };
+					VkDeviceSize offsets[] { 0 };
 
-				vkCmdBindVertexBuffers(command_buffers[i], 0, static_cast<uint32_t>(vertex_buffers.size()), vertex_buffers.data(), offsets.data());
+					vkCmdBindVertexBuffers(command_buffers[i], 0, 1, vertex_buffers, offsets);
 
-				//vkCmdDraw(command_buffers[i], static_cast<uint32_t>(VERTICES.size()), 1, 0, 0);
-				vkCmdBindDescriptorSets(command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[i], 0, nullptr);
+					//vkCmdDraw(command_buffers[i], static_cast<uint32_t>(VERTICES.size()), 1, 0, 0);
+					vkCmdBindDescriptorSets(command_buffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &model_draw_queue[m]->descriptor_sets[i], 0, nullptr);
 
-				for (size_t j = 0; j < model_draw_queue.size(); j++)
-				{
-					vkCmdBindIndexBuffer(command_buffers[i], model_draw_queue[j]->index_buffer, 0, VK_INDEX_TYPE_UINT32);
-					vkCmdDrawIndexed(command_buffers[i], static_cast<uint32_t>(model_draw_queue[j]->indices.size()), 1, 0, j, 0);
+					vkCmdBindIndexBuffer(command_buffers[i], model_draw_queue[m]->index_buffer, 0, VK_INDEX_TYPE_UINT32);
+					vkCmdDrawIndexed(command_buffers[i], static_cast<uint32_t>(model_draw_queue[m]->indices.size()), 1, 0, 0, 0);
 				}
 
 				vkCmdEndRenderPass(command_buffers[i]);
@@ -2081,7 +2077,7 @@ namespace vk_renderer {
 			cam.look_at({ 0,0,0 });
 		}
 
-		void update_uniform_buffer(int model_index, uint32_t current_image)
+		void update_uniform_buffer(size_t model_index, uint32_t current_image)
 		{
 			const auto & engine_to_vk = make_transform(engine_coordinate_system, vk_coordinate_system);
 			const auto & engine_to_vk_mat = float4x4{
@@ -2096,9 +2092,9 @@ namespace vk_renderer {
 			mvp.projection = projection_matrix;
 
 			void* uniform_buffer_data;
-			CHECK_VK(vkMapMemory(logical_device, uniform_buffer_memories[current_image], 0, sizeof(mvp), 0, &uniform_buffer_data), "Could not map vulkan uniform buffer memories");
+			CHECK_VK(vkMapMemory(logical_device, model_draw_queue[model_index]->uniform_buffer_memories[current_image], 0, sizeof(mvp), 0, &uniform_buffer_data), "Could not map vulkan uniform buffer memories");
 			memcpy(uniform_buffer_data, &mvp, sizeof(mvp));
-			vkUnmapMemory(logical_device, uniform_buffer_memories[current_image]);
+			vkUnmapMemory(logical_device, model_draw_queue[model_index]->uniform_buffer_memories[current_image]);
 		}
 
 		void cleanup_swap_chain() {
@@ -2154,6 +2150,18 @@ namespace vk_renderer {
 		{
 			for (auto model : model_cache)
 			{
+				for (auto mem : model->uniform_buffer_memories)
+				{
+					vkFreeMemory(logical_device, mem, nullptr);
+				}
+
+				for (auto buff : model->uniform_buffers)
+				{
+					vkDestroyBuffer(logical_device, buff, nullptr);
+				}
+
+				vkFreeDescriptorSets(logical_device, descriptor_pool, static_cast<uint32_t>(model->descriptor_sets.size()), model->descriptor_sets.data());
+
 				vkDestroyImageView(logical_device, model->texture_image_view, nullptr);
 
 				vkDestroyImage(logical_device, model->texture_image, nullptr);
@@ -2181,11 +2189,6 @@ namespace vk_renderer {
 			vkDestroyDescriptorSetLayout(logical_device, descriptor_set_layout, nullptr);
 		}
 
-		void cleanup_descriptor_sets()
-		{
-			vkFreeDescriptorSets(logical_device, descriptor_pool, static_cast<uint32_t>(descriptor_sets.size()), descriptor_sets.data());
-		}
-
 		void cleanup_sync_objects()
 		{
 			for (size_t i = 0; i < in_flight_fences.size(); i++) {
@@ -2203,19 +2206,6 @@ namespace vk_renderer {
 		void cleanup_command_buffers()
 		{
 			vkFreeCommandBuffers(logical_device, command_pool, static_cast<uint32_t>(command_buffers.size()), command_buffers.data());
-		}
-
-		void cleanup_uniform_buffers()
-		{
-			for (auto mem : uniform_buffer_memories)
-			{
-				vkFreeMemory(logical_device, mem, nullptr);
-			}
-
-			for (auto buff : uniform_buffers)
-			{
-				vkDestroyBuffer(logical_device, buff, nullptr);
-			}
 		}
 
 		void cleanup_logical_device()

@@ -32,8 +32,8 @@ int main() try
 		auto time_since_beginning_of_program = std::chrono::duration<float, std::chrono::seconds::period>(current_time - begin_first_frame_time).count();
 
 		// Rotate the cube by the amount we want
-		cube_statue.transform = linalg::pose_matrix(linalg::rotation_quat(renderer.get_coordinate_system().get_up(), time_since_beginning_of_program * 90.0f * DEG_TO_RAD * 0.25f), float3{ 0,0,0 });
-		chalet.transform = linalg::pose_matrix(linalg::rotation_quat(renderer.get_coordinate_system().get_down(), time_since_beginning_of_program * 90.0f * DEG_TO_RAD * 0.25f), float3{ 0.5,0,0 });
+		cube_statue.transform = linalg::pose_matrix(linalg::rotation_quat(renderer.get_coordinate_system().get_up(), time_since_beginning_of_program * 90.0f * DEG_TO_RAD * 0.25f), float3{ -1.0f,0,0 });
+		chalet.transform = linalg::pose_matrix(linalg::rotation_quat(renderer.get_coordinate_system().get_down(), time_since_beginning_of_program * 90.0f * DEG_TO_RAD * 0.25f), float3{ 1.0f,0,0 });
 
 		std::cout << "Rendering Speed: " << 1/frame_time << " FPS\r";
 	}
