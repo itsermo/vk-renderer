@@ -28,7 +28,7 @@ using namespace linalg::aliases;
 
 // Checks vulkan return code, throws runtime error exception if not VK_SUCCESS
 #define CHECK_VK(vk_call, fail_str)												\
-{																				\
+do {																			\
 	VkResult vk_call_result = vk_call;											\
 	if(vk_call_result != VK_SUCCESS)											\
 	{																			\
@@ -37,7 +37,7 @@ using namespace linalg::aliases;
 		const auto & ss_str = ss.str();											\
 		throw std::runtime_error(ss_str.c_str());								\
 	}																			\
-}
+} while(false)
 
 namespace vk_renderer {
 
@@ -1909,15 +1909,15 @@ namespace vk_renderer {
 
 			std::array<VkDescriptorPoolSize, 2> pool_sizes = {};
 			pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			pool_sizes[0].descriptorCount = static_cast<uint32_t>(physical_device_properties.limits.maxDescriptorSetUniformBuffers);
+			pool_sizes[0].descriptorCount = static_cast<uint32_t>(256);
 			pool_sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			pool_sizes[1].descriptorCount = static_cast<uint32_t>(physical_device_properties.limits.maxDescriptorSetSampledImages);
+			pool_sizes[1].descriptorCount = static_cast<uint32_t>(256);
 
 			VkDescriptorPoolCreateInfo pool_info = {};
 			pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 			pool_info.poolSizeCount = static_cast<uint32_t>(pool_sizes.size());
 			pool_info.pPoolSizes = pool_sizes.data();
-			pool_info.maxSets = static_cast<uint32_t>(physical_device_properties.limits.maxDescriptorSetUniformBuffers);
+			pool_info.maxSets = static_cast<uint32_t>(256);
 			pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
 			CHECK_VK(vkCreateDescriptorPool(logical_device, &pool_info, nullptr, &descriptor_pool), "Could not create vulkan descriptor pool");
