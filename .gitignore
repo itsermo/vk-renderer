@@ -287,5 +287,9 @@ DerivedData/
 *.perspectivev3
 !default.perspectivev3
 
+xcode/Index
+xcode/Build
+
 resources/shaders/*.spv
 build/
+

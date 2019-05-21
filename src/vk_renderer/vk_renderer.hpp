@@ -420,8 +420,8 @@ namespace vk_renderer {
 		std::vector<VkImageView> swap_chain_image_views{};
 		VkShaderModule vert_shader_module{ VK_NULL_HANDLE };
 		VkShaderModule frag_shader_module{ VK_NULL_HANDLE };
-		const char * VERT_SHADER_FILENAME = "resources/shaders/shader.vs.glsl";
-		const char * FRAG_SHADER_FILENAME = "resources/shaders/shader.fs.glsl";
+		const char * VERT_SHADER_FILENAME = "../../resources/shaders/shader.vs.glsl";
+		const char * FRAG_SHADER_FILENAME = "../../resources/shaders/shader.fs.glsl";
 		VkRenderPass render_pass{ VK_NULL_HANDLE };
 		VkDescriptorSetLayout descriptor_set_layout{ VK_NULL_HANDLE };
 		VkPipelineLayout pipeline_layout{ VK_NULL_HANDLE };

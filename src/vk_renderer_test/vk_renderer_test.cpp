@@ -2,12 +2,12 @@
 
 const int WINDOW_WIDTH  { 800 };
 const int WINDOW_HEIGHT { 600 };
-const std::string CUBE_MODEL_PATH = "resources/models/cube.obj";
-const std::string CHALET_MODEL_PATH = "resources/models/chalet.obj";
+const std::string CUBE_MODEL_PATH = "../../resources/models/cube.obj";
+const std::string CHALET_MODEL_PATH = "../../resources/models/chalet.obj";
 
-const std::string STATUE_TEXTURE_PATH = "resources/textures/statue.jpg";
-const std::string VENUS_TEXTURE_PATH = "resources/textures/venus.jpg";
-const std::string CHALET_TEXTURE_PATH = "resources/textures/chalet.jpg";
+const std::string STATUE_TEXTURE_PATH = "../../resources/textures/statue.jpg";
+const std::string VENUS_TEXTURE_PATH = "../../resources/textures/venus.jpg";
+const std::string CHALET_TEXTURE_PATH = "../../resources/textures/chalet.jpg";
 
 int main() try
 {

@@ -2,9 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:/Volumes/BOOTCAMP/code/vkTest/mac/resources">
+      location = "group:../../vk-renderer-test.xcodeproj">
    </FileRef>
    <FileRef
-      location = "self:">
+      location = "container:">
    </FileRef>
 </Workspace>

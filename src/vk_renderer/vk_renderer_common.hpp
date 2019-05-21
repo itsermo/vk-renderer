@@ -3,6 +3,7 @@
 #define VK_RENDERER_COMMON
 #include <linalg.h>
 #include <vector>
+#include <string>
 
 using namespace linalg::aliases;
 

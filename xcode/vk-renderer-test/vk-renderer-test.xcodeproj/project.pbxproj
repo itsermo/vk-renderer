@@ -7,11 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		453721AA21E59A80006BBA3D /* libvulkan.1.1.92.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 453721A921E59A80006BBA3D /* libvulkan.1.1.92.dylib */; };
-		453721AC21E59AAA006BBA3D /* libshaderc_combined.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 453721AB21E59AAA006BBA3D /* libshaderc_combined.a */; };
-		453721B021E5AD7B006BBA3D /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 453721AF21E5AD7B006BBA3D /* libglfw.3.3.dylib */; };
-		45A458AA21E5C16A0055E9E2 /* vk_renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 45A458A821E5C16A0055E9E2 /* vk_renderer.cpp */; };
-		45A458AB21E5C16A0055E9E2 /* vktest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 45A458A921E5C16A0055E9E2 /* vktest.cpp */; };
+		452ED87B2293855B00B464C9 /* vk_renderer_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4542F51C229381A600C6CB43 /* vk_renderer_test.cpp */; };
+		457D7F7B2293907A0023947C /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 457D7F782293907A0023947C /* libglfw.3.3.dylib */; };
+		457D7F7C2293907A0023947C /* libshaderc_combined.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 457D7F792293907A0023947C /* libshaderc_combined.a */; };
+		457D7F7D2293907A0023947C /* libvulkan.1.1.106.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 457D7F7A2293907A0023947C /* libvulkan.1.1.106.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -19,7 +18,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
 			dstPath = "";
-			dstSubfolderSpec = 16;
+			dstSubfolderSpec = 10;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -27,13 +26,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		453721A921E59A80006BBA3D /* libvulkan.1.1.92.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvulkan.1.1.92.dylib; path = ../3rdparty/lib64/macos/libvulkan.1.1.92.dylib; sourceTree = "<group>"; };
-		453721AB21E59AAA006BBA3D /* libshaderc_combined.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libshaderc_combined.a; path = ../3rdparty/lib64/macos/libshaderc_combined.a; sourceTree = "<group>"; };
-		453721AF21E5AD7B006BBA3D /* libglfw.3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.3.dylib; path = ../3rdparty/lib64/macos/libglfw.3.3.dylib; sourceTree = "<group>"; };
-		45A458A721E5C16A0055E9E2 /* vk_renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = vk_renderer.hpp; sourceTree = "<group>"; };
-		45A458A821E5C16A0055E9E2 /* vk_renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vk_renderer.cpp; sourceTree = "<group>"; };
-		45A458A921E5C16A0055E9E2 /* vktest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vktest.cpp; sourceTree = "<group>"; };
-		45CA37B021E59217003F2AB7 /* vkTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = vkTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4542F51C229381A600C6CB43 /* vk_renderer_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vk_renderer_test.cpp; path = ../../src/vk_renderer_test/vk_renderer_test.cpp; sourceTree = "<group>"; };
+		457D7F782293907A0023947C /* libglfw.3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.3.dylib; path = ../../3rdparty/lib/macos64/libglfw.3.3.dylib; sourceTree = "<group>"; };
+		457D7F792293907A0023947C /* libshaderc_combined.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libshaderc_combined.a; path = ../../3rdparty/lib/macos64/libshaderc_combined.a; sourceTree = "<group>"; };
+		457D7F7A2293907A0023947C /* libvulkan.1.1.106.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvulkan.1.1.106.dylib; path = ../../3rdparty/lib/macos64/libvulkan.1.1.106.dylib; sourceTree = "<group>"; };
+		45CA37B021E59217003F2AB7 /* vk-renderer-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "vk-renderer-test"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,9 +38,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				453721B021E5AD7B006BBA3D /* libglfw.3.3.dylib in Frameworks */,
-				453721AC21E59AAA006BBA3D /* libshaderc_combined.a in Frameworks */,
-				453721AA21E59A80006BBA3D /* libvulkan.1.1.92.dylib in Frameworks */,
+				457D7F7B2293907A0023947C /* libglfw.3.3.dylib in Frameworks */,
+				457D7F7C2293907A0023947C /* libshaderc_combined.a in Frameworks */,
+				457D7F7D2293907A0023947C /* libvulkan.1.1.106.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,28 +50,17 @@
 		4537219E21E593CD006BBA3D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				453721AF21E5AD7B006BBA3D /* libglfw.3.3.dylib */,
-				453721AB21E59AAA006BBA3D /* libshaderc_combined.a */,
-				453721A921E59A80006BBA3D /* libvulkan.1.1.92.dylib */,
+				457D7F782293907A0023947C /* libglfw.3.3.dylib */,
+				457D7F792293907A0023947C /* libshaderc_combined.a */,
+				457D7F7A2293907A0023947C /* libvulkan.1.1.106.dylib */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		45A458A621E5C13D0055E9E2 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				45A458A821E5C16A0055E9E2 /* vk_renderer.cpp */,
-				45A458A721E5C16A0055E9E2 /* vk_renderer.hpp */,
-				45A458A921E5C16A0055E9E2 /* vktest.cpp */,
-			);
-			name = src;
-			path = ../src;
 			sourceTree = "<group>";
 		};
 		45CA37A721E59217003F2AB7 = {
 			isa = PBXGroup;
 			children = (
-				45A458A621E5C13D0055E9E2 /* src */,
+				4542F51C229381A600C6CB43 /* vk_renderer_test.cpp */,
 				45CA37B121E59217003F2AB7 /* Products */,
 				4537219E21E593CD006BBA3D /* Frameworks */,
 			);
@@ -83,7 +69,7 @@
 		45CA37B121E59217003F2AB7 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				45CA37B021E59217003F2AB7 /* vkTest */,
+				45CA37B021E59217003F2AB7 /* vk-renderer-test */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -91,9 +77,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		45CA37AF21E59217003F2AB7 /* vkTest */ = {
+		45CA37AF21E59217003F2AB7 /* vk-renderer-test */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 45CA37B721E59217003F2AB7 /* Build configuration list for PBXNativeTarget "vkTest" */;
+			buildConfigurationList = 45CA37B721E59217003F2AB7 /* Build configuration list for PBXNativeTarget "vk-renderer-test" */;
 			buildPhases = (
 				45CA37AC21E59217003F2AB7 /* Sources */,
 				45CA37AD21E59217003F2AB7 /* Frameworks */,
@@ -104,9 +90,9 @@
 			);
 			dependencies = (
 			);
-			name = vkTest;
+			name = "vk-renderer-test";
 			productName = vkTest;
-			productReference = 45CA37B021E59217003F2AB7 /* vkTest */;
+			productReference = 45CA37B021E59217003F2AB7 /* vk-renderer-test */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -124,7 +110,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 45CA37AB21E59217003F2AB7 /* Build configuration list for PBXProject "vkTest" */;
+			buildConfigurationList = 45CA37AB21E59217003F2AB7 /* Build configuration list for PBXProject "vk-renderer-test" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -136,7 +122,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				45CA37AF21E59217003F2AB7 /* vkTest */,
+				45CA37AF21E59217003F2AB7 /* vk-renderer-test */,
 			);
 		};
 /* End PBXProject section */
@@ -157,7 +143,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -fR ../resources ../bin64\n";
+			shellScript = "cp -fR ../../resources ../../build\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -166,8 +152,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				45A458AB21E5C16A0055E9E2 /* vktest.cpp in Sources */,
-				45A458AA21E5C16A0055E9E2 /* vk_renderer.cpp in Sources */,
+				452ED87B2293855B00B464C9 /* vk_renderer_test.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -180,7 +165,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -230,6 +215,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				SYMROOT = ../../build/bin/macos64;
 			};
 			name = Debug;
 		};
@@ -239,7 +225,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -282,6 +268,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
+				SYMROOT = ../../build/bin/macos64;
 			};
 			name = Release;
 		};
@@ -292,17 +279,21 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
-				HEADER_SEARCH_PATHS = ../3rdparty/include;
-				LD_RUNPATH_SEARCH_PATHS = ../3rdparty/local/lib;
+				FRAMEWORK_SEARCH_PATHS = "../../3rdparty/lib/macos64/**";
+				HEADER_SEARCH_PATHS = ../../3rdparty/include;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"../../3rdparty/lib/macos64/**",
+					"../../build/lib/macos64/**",
+				);
 				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"../3rdparty/lib64/macos/**",
+					"../../3rdparty/lib/macos64/**",
+					"../../build/lib/macos64/**",
 				);
 				OTHER_LDFLAGS = "";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REEXPORTED_LIBRARY_PATHS = "";
-				SYMROOT = "";
+				SYMROOT = ../../build/bin/macos64;
 			};
 			name = Debug;
 		};
@@ -313,24 +304,28 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
-				HEADER_SEARCH_PATHS = ../3rdparty/include;
-				LD_RUNPATH_SEARCH_PATHS = ../3rdparty/local/lib;
+				FRAMEWORK_SEARCH_PATHS = "../../3rdparty/lib/macos64/**";
+				HEADER_SEARCH_PATHS = ../../3rdparty/include;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"../../3rdparty/lib/macos64/**",
+					"../../build/lib/macos64/**",
+				);
 				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"../3rdparty/lib64/macos/**",
+					"../../3rdparty/lib/macos64/**",
+					"../../build/lib/macos64/**",
 				);
 				OTHER_LDFLAGS = "";
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REEXPORTED_LIBRARY_PATHS = "";
-				SYMROOT = "";
+				SYMROOT = ../../build/bin/macos64;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		45CA37AB21E59217003F2AB7 /* Build configuration list for PBXProject "vkTest" */ = {
+		45CA37AB21E59217003F2AB7 /* Build configuration list for PBXProject "vk-renderer-test" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				45CA37B521E59217003F2AB7 /* Debug */,
@@ -339,7 +334,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		45CA37B721E59217003F2AB7 /* Build configuration list for PBXNativeTarget "vkTest" */ = {
+		45CA37B721E59217003F2AB7 /* Build configuration list for PBXNativeTarget "vk-renderer-test" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				45CA37B821E59217003F2AB7 /* Debug */,
