@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "45CA37AF21E59217003F2AB7"
-               BuildableName = "vk-renderer-test"
-               BlueprintName = "vk-renderer-test"
-               ReferencedContainer = "container:vk-renderer-test.xcodeproj">
+               BlueprintIdentifier = "45C2DE5D229380A90076A124"
+               BuildableName = "libvk-renderer.a"
+               BlueprintName = "vk-renderer"
+               ReferencedContainer = "container:vk-renderer.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,50 +29,28 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "45CA37AF21E59217003F2AB7"
-            BuildableName = "vk-renderer-test"
-            BlueprintName = "vk-renderer-test"
-            ReferencedContainer = "container:vk-renderer-test.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Release"
-      selectedDebuggerIdentifier = ""
-      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "45CA37AF21E59217003F2AB7"
-            BuildableName = "vk-renderer-test"
-            BlueprintName = "vk-renderer-test"
-            ReferencedContainer = "container:vk-renderer-test.xcodeproj">
+            BlueprintIdentifier = "45C2DE5D229380A90076A124"
+            BuildableName = "libvk-renderer.a"
+            BlueprintName = "vk-renderer"
+            ReferencedContainer = "container:vk-renderer.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "VK_ICD_FILENAMES"
-            value = "/usr/local/etc/vulkan/icd.d/MoltenVK_icd.json"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "VK_LAYER_PATH"
-            value = "/usr/local/etc/vulkan/explicit_layer.d"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -82,16 +60,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "45CA37AF21E59217003F2AB7"
-            BuildableName = "vk-renderer-test"
-            BlueprintName = "vk-renderer-test"
-            ReferencedContainer = "container:vk-renderer-test.xcodeproj">
+            BlueprintIdentifier = "45C2DE5D229380A90076A124"
+            BuildableName = "libvk-renderer.a"
+            BlueprintName = "vk-renderer"
+            ReferencedContainer = "container:vk-renderer.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

@@ -106,6 +106,7 @@
 		45C2DE56229380A90076A124 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				DefaultBuildSystemTypeForWorkspace = Latest;
 				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = itsermo;
 				TargetAttributes = {
