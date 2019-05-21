@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		452ED87B2293855B00B464C9 /* vk_renderer_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4542F51C229381A600C6CB43 /* vk_renderer_test.cpp */; };
+		455FDA242293A6AD000AE7B4 /* vk-renderer-test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 455FDA232293A6AD000AE7B4 /* vk-renderer-test.cpp */; };
 		457D7F7B2293907A0023947C /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 457D7F782293907A0023947C /* libglfw.3.3.dylib */; };
 		457D7F7C2293907A0023947C /* libshaderc_combined.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 457D7F792293907A0023947C /* libshaderc_combined.a */; };
 		457D7F7D2293907A0023947C /* libvulkan.1.1.106.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 457D7F7A2293907A0023947C /* libvulkan.1.1.106.dylib */; };
@@ -26,7 +26,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4542F51C229381A600C6CB43 /* vk_renderer_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vk_renderer_test.cpp; path = ../../src/vk_renderer_test/vk_renderer_test.cpp; sourceTree = "<group>"; };
+		455FDA232293A6AD000AE7B4 /* vk-renderer-test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "vk-renderer-test.cpp"; path = "../../src/vk-renderer-test/vk-renderer-test.cpp"; sourceTree = "<group>"; };
 		457D7F782293907A0023947C /* libglfw.3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.3.dylib; path = ../../3rdparty/lib/macos64/libglfw.3.3.dylib; sourceTree = "<group>"; };
 		457D7F792293907A0023947C /* libshaderc_combined.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libshaderc_combined.a; path = ../../3rdparty/lib/macos64/libshaderc_combined.a; sourceTree = "<group>"; };
 		457D7F7A2293907A0023947C /* libvulkan.1.1.106.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvulkan.1.1.106.dylib; path = ../../3rdparty/lib/macos64/libvulkan.1.1.106.dylib; sourceTree = "<group>"; };
@@ -60,7 +60,7 @@
 		45CA37A721E59217003F2AB7 = {
 			isa = PBXGroup;
 			children = (
-				4542F51C229381A600C6CB43 /* vk_renderer_test.cpp */,
+				455FDA232293A6AD000AE7B4 /* vk-renderer-test.cpp */,
 				45CA37B121E59217003F2AB7 /* Products */,
 				4537219E21E593CD006BBA3D /* Frameworks */,
 			);
@@ -152,7 +152,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				452ED87B2293855B00B464C9 /* vk_renderer_test.cpp in Sources */,
+				455FDA242293A6AD000AE7B4 /* vk-renderer-test.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

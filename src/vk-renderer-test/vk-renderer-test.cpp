@@ -23,6 +23,12 @@ int main() try
 	{
 		static auto begin_first_frame_time = std::chrono::high_resolution_clock::now();
 		auto begin_frame_time = std::chrono::high_resolution_clock::now();
+        static float time_since_beginning_of_program = 0;
+        
+        // Rotate the cube by the amount we want
+        cube_statue.transform = linalg::pose_matrix(linalg::rotation_quat(renderer.get_coordinate_system().get_up(), time_since_beginning_of_program * 90.0f * DEG_TO_RAD * 0.25f), float3{ -1.0f,0,0 });
+        cube_venus.transform = linalg::pose_matrix(linalg::rotation_quat(renderer.get_coordinate_system().get_right(), time_since_beginning_of_program * 90.0f * DEG_TO_RAD * 0.25f), float3{ 0, 1.0f, -1.0f });
+        chalet.transform = linalg::pose_matrix(linalg::rotation_quat(renderer.get_coordinate_system().get_down(), time_since_beginning_of_program * 90.0f * DEG_TO_RAD * 0.25f), float3{ 1.0f,0,0 });
 
 		renderer.begin_frame();
 		renderer.set_view_proj_from_camera();
@@ -35,12 +41,8 @@ int main() try
 		// Calculate the time it took to draw the frame and time since the first frame was prepared
 		auto current_time = std::chrono::high_resolution_clock::now();
 		float frame_time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - begin_frame_time).count();
-		auto time_since_beginning_of_program = std::chrono::duration<float, std::chrono::seconds::period>(current_time - begin_first_frame_time).count();
+		time_since_beginning_of_program = std::chrono::duration<float, std::chrono::seconds::period>(current_time - begin_first_frame_time).count();
 
-		// Rotate the cube by the amount we want
-		cube_statue.transform = linalg::pose_matrix(linalg::rotation_quat(renderer.get_coordinate_system().get_up(), time_since_beginning_of_program * 90.0f * DEG_TO_RAD * 0.25f), float3{ -1.0f,0,0 });
-		cube_venus.transform = linalg::pose_matrix(linalg::rotation_quat(renderer.get_coordinate_system().get_right(), time_since_beginning_of_program * 90.0f * DEG_TO_RAD * 0.25f), float3{ 0, 1.0f, -1.0f });
-		chalet.transform = linalg::pose_matrix(linalg::rotation_quat(renderer.get_coordinate_system().get_down(), time_since_beginning_of_program * 90.0f * DEG_TO_RAD * 0.25f), float3{ 1.0f,0,0 });
 
 		std::cout << "Rendering Speed: " << 1/frame_time << " FPS\r";
 	}

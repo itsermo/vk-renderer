@@ -413,7 +413,7 @@ namespace vk_renderer {
 		VkQueue graphics_queue{ VK_NULL_HANDLE };
 		VkSurfaceKHR surface{ VK_NULL_HANDLE };
 		VkQueue present_queue{ VK_NULL_HANDLE };
-		VkSwapchainKHR swap_chain{};
+		VkSwapchainKHR swap_chain{ VK_NULL_HANDLE };
 		std::vector<VkImage> swap_chain_images{};
 		VkFormat swap_chain_image_format{};
 		VkExtent2D swap_chain_extent{};

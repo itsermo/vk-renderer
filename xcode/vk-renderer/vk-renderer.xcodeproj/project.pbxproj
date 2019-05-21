@@ -7,21 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4542F5182293818C00C6CB43 /* vk_renderer_common.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4542F5142293818B00C6CB43 /* vk_renderer_common.hpp */; };
-		4542F5192293818C00C6CB43 /* vk_renderer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4542F5152293818B00C6CB43 /* vk_renderer.hpp */; };
-		4542F51A2293818C00C6CB43 /* vk_renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4542F5162293818C00C6CB43 /* vk_renderer.cpp */; };
-		4542F51B2293818C00C6CB43 /* vk_renderer_utils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 4542F5172293818C00C6CB43 /* vk_renderer_utils.hpp */; };
 		4542F5252293823200C6CB43 /* libshaderc_combined.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4542F5222293823200C6CB43 /* libshaderc_combined.a */; };
 		4542F5262293823200C6CB43 /* libglfw.3.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4542F5232293823200C6CB43 /* libglfw.3.3.dylib */; };
+		455FDA292293A6C5000AE7B4 /* vk-renderer-common.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 455FDA252293A6C5000AE7B4 /* vk-renderer-common.hpp */; };
+		455FDA2A2293A6C5000AE7B4 /* vk-renderer-utils.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 455FDA262293A6C5000AE7B4 /* vk-renderer-utils.hpp */; };
+		455FDA2B2293A6C5000AE7B4 /* vk-renderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 455FDA272293A6C5000AE7B4 /* vk-renderer.cpp */; };
+		455FDA2C2293A6C5000AE7B4 /* vk-renderer.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 455FDA282293A6C5000AE7B4 /* vk-renderer.hpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		4542F5142293818B00C6CB43 /* vk_renderer_common.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = vk_renderer_common.hpp; path = ../../src/vk_renderer/vk_renderer_common.hpp; sourceTree = "<group>"; };
-		4542F5152293818B00C6CB43 /* vk_renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = vk_renderer.hpp; path = ../../src/vk_renderer/vk_renderer.hpp; sourceTree = "<group>"; };
-		4542F5162293818C00C6CB43 /* vk_renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vk_renderer.cpp; path = ../../src/vk_renderer/vk_renderer.cpp; sourceTree = "<group>"; };
-		4542F5172293818C00C6CB43 /* vk_renderer_utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = vk_renderer_utils.hpp; path = ../../src/vk_renderer/vk_renderer_utils.hpp; sourceTree = "<group>"; };
 		4542F5222293823200C6CB43 /* libshaderc_combined.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libshaderc_combined.a; path = ../../3rdparty/lib/macos64/libshaderc_combined.a; sourceTree = "<group>"; };
 		4542F5232293823200C6CB43 /* libglfw.3.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.3.dylib; path = ../../3rdparty/lib/macos64/libglfw.3.3.dylib; sourceTree = "<group>"; };
+		455FDA252293A6C5000AE7B4 /* vk-renderer-common.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "vk-renderer-common.hpp"; path = "../../src/vk-renderer/vk-renderer-common.hpp"; sourceTree = "<group>"; };
+		455FDA262293A6C5000AE7B4 /* vk-renderer-utils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "vk-renderer-utils.hpp"; path = "../../src/vk-renderer/vk-renderer-utils.hpp"; sourceTree = "<group>"; };
+		455FDA272293A6C5000AE7B4 /* vk-renderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "vk-renderer.cpp"; path = "../../src/vk-renderer/vk-renderer.cpp"; sourceTree = "<group>"; };
+		455FDA282293A6C5000AE7B4 /* vk-renderer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "vk-renderer.hpp"; path = "../../src/vk-renderer/vk-renderer.hpp"; sourceTree = "<group>"; };
 		45C2DE5E229380A90076A124 /* libvk-renderer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libvk-renderer.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -50,10 +50,10 @@
 		45C2DE55229380A90076A124 = {
 			isa = PBXGroup;
 			children = (
-				4542F5142293818B00C6CB43 /* vk_renderer_common.hpp */,
-				4542F5172293818C00C6CB43 /* vk_renderer_utils.hpp */,
-				4542F5162293818C00C6CB43 /* vk_renderer.cpp */,
-				4542F5152293818B00C6CB43 /* vk_renderer.hpp */,
+				455FDA252293A6C5000AE7B4 /* vk-renderer-common.hpp */,
+				455FDA262293A6C5000AE7B4 /* vk-renderer-utils.hpp */,
+				455FDA272293A6C5000AE7B4 /* vk-renderer.cpp */,
+				455FDA282293A6C5000AE7B4 /* vk-renderer.hpp */,
 				45C2DE5F229380A90076A124 /* Products */,
 				4542F5202293823100C6CB43 /* Frameworks */,
 			);
@@ -74,9 +74,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4542F5192293818C00C6CB43 /* vk_renderer.hpp in Headers */,
-				4542F5182293818C00C6CB43 /* vk_renderer_common.hpp in Headers */,
-				4542F51B2293818C00C6CB43 /* vk_renderer_utils.hpp in Headers */,
+				455FDA2A2293A6C5000AE7B4 /* vk-renderer-utils.hpp in Headers */,
+				455FDA2C2293A6C5000AE7B4 /* vk-renderer.hpp in Headers */,
+				455FDA292293A6C5000AE7B4 /* vk-renderer-common.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,7 +136,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4542F51A2293818C00C6CB43 /* vk_renderer.cpp in Sources */,
+				455FDA2B2293A6C5000AE7B4 /* vk-renderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
