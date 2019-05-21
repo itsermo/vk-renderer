@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vk_renderer", "vk_renderer\vk_renderer.vcxproj", "{AB30C74D-FE81-4416-8614-EBC74A3A80ED}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vk-renderer", "vk-renderer\vk-renderer.vcxproj", "{AB30C74D-FE81-4416-8614-EBC74A3A80ED}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vk_renderer_test", "vk_renderer_test\vk_renderer_test.vcxproj", "{B84B1DC8-EE01-4A15-885D-7A85DD1D2B64}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vk-renderer-test", "vk-renderer-test\vk-renderer-test.vcxproj", "{B84B1DC8-EE01-4A15-885D-7A85DD1D2B64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -18,42 +18,34 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\src\vk_renderer\vk_renderer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\src\vk_renderer\vk_renderer.hpp" />
-    <ClInclude Include="..\..\src\vk_renderer\vk_renderer_common.hpp" />
-    <ClInclude Include="..\..\src\vk_renderer\vk_renderer_utils.hpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{AB30C74D-FE81-4416-8614-EBC74A3A80ED}</ProjectGuid>
-    <RootNamespace>vkTest</RootNamespace>
+    <ProjectGuid>{B84B1DC8-EE01-4A15-885D-7A85DD1D2B64}</ProjectGuid>
+    <RootNamespace>vkrenderertest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -66,103 +58,27 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\resources\resources-dependency.props" />
     <Import Project="..\build-props\build-defaults.props" />
-    <Import Project="..\..\3rdparty\vs-props\glfw3-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\linalg-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\shaderc-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\stb-image-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\tiny-obj-loader-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\vulkan-dependency.props" />
-    <Import Project="..\..\resources\shaders\compile-shaders.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\resources\resources-dependency.props" />
     <Import Project="..\build-props\build-defaults.props" />
-    <Import Project="..\..\3rdparty\vs-props\glfw3-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\linalg-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\shaderc-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\stb-image-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\tiny-obj-loader-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\vulkan-dependency.props" />
-    <Import Project="..\..\resources\shaders\compile-shaders.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\resources\resources-dependency.props" />
     <Import Project="..\build-props\build-defaults.props" />
-    <Import Project="..\..\3rdparty\vs-props\glfw3-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\linalg-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\shaderc-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\stb-image-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\tiny-obj-loader-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\vulkan-dependency.props" />
-    <Import Project="..\..\resources\shaders\compile-shaders.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\resources\resources-dependency.props" />
     <Import Project="..\build-props\build-defaults.props" />
-    <Import Project="..\..\3rdparty\vs-props\glfw3-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\linalg-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\shaderc-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\stb-image-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\tiny-obj-loader-dependency.props" />
-    <Import Project="..\..\3rdparty\vs-props\vulkan-dependency.props" />
-    <Import Project="..\..\resources\shaders\compile-shaders.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <CustomBuildAfterTargets>
-    </CustomBuildAfterTargets>
-    <CustomBuildBeforeTargets>
-    </CustomBuildBeforeTargets>
-    <OutDir>$(SolutionDir)..\build\bin\win$(PlatformArchitecture)\</OutDir>
-    <IntDir>$(SolutionDir)..\build\obj\win$(PlatformArchitecture)\$(ProjectName)\$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)d</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <CustomBuildAfterTargets>
-    </CustomBuildAfterTargets>
-    <CustomBuildBeforeTargets>
-    </CustomBuildBeforeTargets>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <CustomBuildAfterTargets>
-    </CustomBuildAfterTargets>
-    <CustomBuildBeforeTargets>
-    </CustomBuildBeforeTargets>
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <CustomBuildAfterTargets>
-    </CustomBuildAfterTargets>
-    <CustomBuildBeforeTargets>
-    </CustomBuildBeforeTargets>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>WIN32;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link />
-    <PostBuildEvent />
-    <CustomBuildStep />
-    <Link />
-    <Link />
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
-    <Lib>
-      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Lib>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -170,19 +86,16 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>WIN32;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <Link />
-    <PostBuildEvent />
-    <CustomBuildStep />
-    <Link />
-    <Link />
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
-    <Lib>
-      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
-    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -193,21 +106,11 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
-    <PostBuildEvent />
-    <CustomBuildStep />
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
-    <Lib>
-      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -218,21 +121,21 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
-    <PostBuildEvent />
-    <CustomBuildStep />
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
-    <Lib>
-      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
-    </Lib>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\vk-renderer-test\vk-renderer-test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\vk-renderer\vk-renderer.vcxproj">
+      <Project>{ab30c74d-fe81-4416-8614-ebc74a3a80ed}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
 </Project>

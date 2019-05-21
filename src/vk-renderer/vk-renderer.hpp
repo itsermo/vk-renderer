@@ -1,8 +1,8 @@
 #pragma once
 #ifndef VK_RENDERER_HPP
 #define VK_RENDERER_HPP
-#include "vk_renderer_common.hpp"
-#include "vk_renderer_utils.hpp"
+#include "vk-renderer-common.hpp"
+#include "vk-renderer-utils.hpp"
 #include <string>
 #include <iostream>
 #include <stdexcept>

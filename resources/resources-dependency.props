@@ -3,7 +3,7 @@
   <ItemDefinitionGroup>
     <PostBuildEvent>
       <Command>ECHO resources: Copying 'resources\' folder to '$(OutputPath)..\..\resources'...
-XCOPY /HIEVRYD "$(MSBuildThisFileDirectory)*.*" "$(OutputPath)\resources\" /EXCLUDE:$(MSBuildThisFileDirectory)resources-dependency-exclude > NUL
+XCOPY /HIEVRYD "$(MSBuildThisFileDirectory)*.*" "$(OutputPath)\..\..\resources\" /EXCLUDE:$(MSBuildThisFileDirectory)resources-dependency-exclude > NUL
 %(Command)
       </Command>
     </PostBuildEvent>

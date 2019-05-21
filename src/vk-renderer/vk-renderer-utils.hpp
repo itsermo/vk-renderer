@@ -2,7 +2,7 @@
 #ifndef VK_RENDERER_UTILS
 #define VK_RENDERER_UTILS
 
-#include "vk_renderer_common.hpp"
+#include "vk-renderer-common.hpp"
 
 #include <linalg.h>
 #include <vector>
