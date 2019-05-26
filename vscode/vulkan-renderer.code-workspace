@@ -1,8 +1,12 @@
 {
 	"folders": [
 		{
-			"path": "/run/media/edreshaj/BOOTCAMP/code/vkTest/src"
+			"path": "/home/edreshaj/Code/vk-renderer/src"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"unordered_map": "cpp"
+		}
+	}
 }

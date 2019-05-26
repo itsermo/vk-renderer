@@ -31,7 +31,7 @@ namespace vk_renderer::utils
 	inline float3x3 transform_matrix(const float3x3 & coord_transform, const float3x3 & matrix) { return mul(coord_transform, matrix, inverse(coord_transform)); }
 
 	// Convert angle axis to euler
-	static float3 to_euler(const float3 & axis, const float & angle)
+	static inline float3 to_euler(const float3 & axis, const float & angle)
 	{
 		float yaw, pitch, roll;
 
@@ -60,7 +60,7 @@ namespace vk_renderer::utils
 	}
 
 	// Convert quaternion to euler
-	static float3 to_euler(const float4 & q)
+	static inline float3 to_euler(const float4 & q)
 	{
 		float pitch, yaw, roll;
 
@@ -85,7 +85,7 @@ namespace vk_renderer::utils
 	}
 
 	// Convert rotation matrix to euler
-	static float3 to_euler(const float3x3 & rot_mat)
+	static inline float3 to_euler(const float3x3 & rot_mat)
 	{
 		return to_euler(linalg::rotation_quat(rot_mat));
 	}
@@ -96,7 +96,7 @@ namespace vk_renderer::utils
 		image_size = tex_width * tex_height * 4;
 
 		if (!pixels) {
-			throw std::runtime_error("failed to load texture image");
+			throw std::runtime_error("Failed to load texture image \"" + texture_file_path + "\"");
 		}
 
 		std::vector<uint8_t> pix_vec(image_size);

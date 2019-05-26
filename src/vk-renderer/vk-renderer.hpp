@@ -3,6 +3,23 @@
 #define VK_RENDERER_HPP
 #include "vk-renderer-common.hpp"
 #include "vk-renderer-utils.hpp"
+
+// For compiling shader code to SPIRV
+#include <shaderc/shaderc.hpp>
+
+// Do NOT include GL headers with glfw, as we only use the vulkan extensions from glfw
+#ifndef GLFW_INCLUDE_NONE
+#define GLFW_INCLUDE_NONE
+#endif
+
+// Required for creating vulkan surfaces 
+#ifndef GLFW_INCLUDE_VULKAN
+#define GLFW_INCLUDE_VULKAN
+#endif
+
+#include <GLFW/glfw3.h>
+
+// C++ std includes
 #include <string>
 #include <iostream>
 #include <stdexcept>
@@ -15,15 +32,10 @@
 #include <optional>
 #include <set>
 #include <linalg.h>
-#include <shaderc/shaderc.hpp>
 #include <fstream>
 #include <chrono>
-#ifndef GLFW_INCLUDE_VULKAN
-#define GLFW_INCLUDE_VULKAN
-#endif
-#include <GLFW/glfw3.h>
-
 #include <unordered_map>
+
 using namespace linalg::aliases;
 
 // Checks vulkan return code, throws runtime error exception if not VK_SUCCESS
@@ -128,8 +140,6 @@ namespace vk_renderer {
 			create_command_buffers();
 			create_sync_objects();
 			create_descriptor_pool();
-			//create_descriptor_sets();
-			//create_uniform_buffers();
 		}
 
 		void begin_frame()
@@ -138,7 +148,6 @@ namespace vk_renderer {
 
 			reset_command_buffers();
 			model_draw_queue.clear();
-			//cleanup_uniform_buffers();
 		}
 
 		void add_model(const model & the_model)

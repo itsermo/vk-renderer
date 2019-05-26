@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**;${workspaceFolder}/../3rdparty/include"
             ],
-            "defines": [],
+            "defines": ["GLFW_INCLUDE_NONE", "GLFW_INCLUDE_VULKAN", "STB_IMAGE_IMPLEMENTATION","TINYOBJLOADER_IMPLEMENTATION"],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",

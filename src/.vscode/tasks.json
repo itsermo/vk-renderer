@@ -2,26 +2,19 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build vkTest (debug)",
+            "label": "makefile (release)",
             "type": "shell",
-            "command": "g++",
-            "args": [
-                "-std=c++17","-g", "-Wall", "-I${workspaceFolder}/../3rdparty/include", "vktest.cpp", "-lglfw","-lvulkan","-lshaderc_shared","-o${workspaceFolder}/../bin64/vkTest"
+            "command": "make",
+            "options": {
+                "cwd": ".."
+            },
+            "problemMatcher": [
+                "$gcc"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
-            
-        },
-        {
-            "label": "build vkTest (release)",
-            "type": "shell",
-            "command": "g++",
-            "args": [
-                "-std=c++17","-g", "-Wall" ,"-DNDEBUG", "-I${workspaceFolder}/../3rdparty/include", "vktest.cpp", "-lglfw","-lvulkan","-lshaderc_shared","-o${workspaceFolder}/../bin64/vkTest"
-            ]
-            
         }
     ]
 }
