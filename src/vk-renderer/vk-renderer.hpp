@@ -467,7 +467,7 @@ namespace vk_renderer {
 		float delta_time{};
 		float previous_frame_timestamp{};
 
-		const std::vector<const char*> VALIDATION_LAYERS = { "VK_LAYER_LUNARG_standard_validation" };
+		const std::vector<const char*> VALIDATION_LAYERS = { "VK_LAYER_KHRONOS_validation" };
 		const std::vector<const char*> DEVICE_EXTENSIONS = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 #ifdef NDEBUG
 		const bool enable_validation_layers = false;
@@ -510,6 +510,13 @@ namespace vk_renderer {
 			if (enable_validation_layers) {
 				extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 			}
+            
+#ifdef __APPLE__
+            // This is to inform that we are running on a platform
+            // that is not a strict vulkan implementation, but vulkan
+            // is running on top of another layer (Metal)
+            // extensions.push_back("VK_KHR_portability_subset");
+#endif
 
 			return extensions;
 		}
