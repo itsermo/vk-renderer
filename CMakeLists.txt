@@ -3,7 +3,6 @@ project(vkr VERSION 1.0)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "(cmake)")
-
 function(get_platform_prefix __platform_prefix)
     if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
         set(${__platform_prefix} "win")
@@ -25,6 +24,22 @@ function(get_platform_prefix __platform_prefix)
 endfunction(get_platform_prefix)
 
 get_platform_prefix(PLATFORM_DIR)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/build/lib/${PLATFORM_DIR}
+CACHE PATH "Output directory for static libraries.")
+
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/build/lib/${PLATFORM_DIR}
+CACHE PATH "Output directory for shared libraries.")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/build/bin/${PLATFORM_DIR}
+CACHE PATH "Output directory for executables and DLL's.")
+
+foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${CMAKE_CURRENT_LIST_DIR}/build/bin/${PLATFORM_DIR}" CACHE PATH "" FORCE)
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${CMAKE_CURRENT_LIST_DIR}/build/lib/${PLATFORM_DIR}" CACHE PATH "" FORCE)
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} "${CMAKE_CURRENT_LIST_DIR}/build/lib/${PLATFORM_DIR}" CACHE PATH "" FORCE)
+endforeach()
 
 option(BUILD_VK_RENDERER_LIB_STATIC "Builds the vk-renderer library as a static lib" ON)
 
@@ -95,10 +110,10 @@ file(GLOB_RECURSE GLSL_FRAG_FILES
 
 foreach(GLSL ${GLSL_VERT_FILES})
     get_filename_component(FILE_NAME ${GLSL} NAME_WLE)
-    set(SPIRV "${PROJECT_BINARY_DIR}/resources/shaders/${FILE_NAME}.spv")
+    set(SPIRV "${CMAKE_CURRENT_LIST_DIR}/build/resources/shaders/cache/${FILE_NAME}.spv")
     add_custom_command(
       OUTPUT ${SPIRV}
-      COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/resources/shaders"
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_LIST_DIR}/build/shaders/cache"
       COMMAND ${Vulkan_GLSLC_EXECUTABLE} -fshader-stage=vert ${GLSL} -o ${SPIRV}
       DEPENDS ${GLSL})
     list(APPEND SPIRV_BINARY_FILES ${SPIRV})
@@ -106,17 +121,17 @@ endforeach(GLSL)
 
 foreach(GLSL ${GLSL_FRAG_FILES})
     get_filename_component(FILE_NAME ${GLSL} NAME_WLE)
-    set(SPIRV "${PROJECT_BINARY_DIR}/resources/shaders/${FILE_NAME}.spv")
+    set(SPIRV "${CMAKE_CURRENT_LIST_DIR}/build/resources/shaders/cache/${FILE_NAME}.spv")
     add_custom_command(
       OUTPUT ${SPIRV}
-      COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/resources/shaders"
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_LIST_DIR}/build/shaders/cache"
       COMMAND ${Vulkan_GLSLC_EXECUTABLE} -fshader-stage=frag ${GLSL} -o ${SPIRV}
       DEPENDS ${GLSL})
     list(APPEND SPIRV_BINARY_FILES ${SPIRV})
 endforeach(GLSL)
 
 add_custom_target(
-    vkr-shaders 
+    vkr-test-shaders 
     DEPENDS ${SPIRV_BINARY_FILES}
     SOURCES ${GLSL_VERT_FILES} ${GLSL_FRAG_FILES}
     )
@@ -124,4 +139,11 @@ add_custom_target(
 set_source_files_properties(${GLSL_VERT_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties(${GLSL_FRAG_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
 
-add_dependencies(vkr-test vkr-shaders)
+add_dependencies(vkr-test vkr-test-shaders)
+
+## resources
+add_custom_command(
+        TARGET vkr-test POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/resources ${CMAKE_CURRENT_LIST_DIR}/build/resources
+)
+                

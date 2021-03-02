@@ -307,7 +307,7 @@ namespace vk_renderer {
 
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 			glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-			glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+			//glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
 
 			window = glfwCreateWindow(width, height, "vk_renderer test", nullptr, nullptr);
 			glfwSetWindowPos(window, x_pos, y_pos);
@@ -2011,7 +2011,7 @@ namespace vk_renderer {
 				vkCmdSetViewport(command_buffers[i], 0, 1, &viewport);
 
 				std::array<VkClearValue, 2> clear_values = {};
-				clear_values[0].color = { 0.05f, 0.05f, 0.05f, 0.8f };
+				clear_values[0].color = { 0.2f, 0.2f, 0.2f, 1 };
 				clear_values[1].depthStencil = { 1.0f, 0 };
 
 				VkRenderPassBeginInfo render_pass_info = {};
