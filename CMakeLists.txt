@@ -83,3 +83,45 @@ target_link_libraries(vkr PUBLIC vkr-linalg vkr-stb-image vkr-tiny-obj-loader Vu
 add_executable(vkr-test ${CMAKE_CURRENT_LIST_DIR}/src/vk-renderer-test/vk-renderer-test.cpp)
 target_link_libraries(vkr-test PUBLIC vkr)
 target_compile_features(vkr-test PUBLIC cxx_std_17)
+
+# Automatically compile shaders to validate them upon building vkr
+file(GLOB_RECURSE GLSL_VERT_FILES
+    "${CMAKE_CURRENT_LIST_DIR}/resources/shaders/*.vs*"
+    )
+
+file(GLOB_RECURSE GLSL_FRAG_FILES
+    "${CMAKE_CURRENT_LIST_DIR}/resources/shaders/*.fs*"
+    )
+
+foreach(GLSL ${GLSL_VERT_FILES})
+    get_filename_component(FILE_NAME ${GLSL} NAME_WLE)
+    set(SPIRV "${PROJECT_BINARY_DIR}/resources/shaders/${FILE_NAME}.spv")
+    add_custom_command(
+      OUTPUT ${SPIRV}
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/resources/shaders"
+      COMMAND ${Vulkan_GLSLC_EXECUTABLE} -fshader-stage=vert ${GLSL} -o ${SPIRV}
+      DEPENDS ${GLSL})
+    list(APPEND SPIRV_BINARY_FILES ${SPIRV})
+endforeach(GLSL)
+
+foreach(GLSL ${GLSL_FRAG_FILES})
+    get_filename_component(FILE_NAME ${GLSL} NAME_WLE)
+    set(SPIRV "${PROJECT_BINARY_DIR}/resources/shaders/${FILE_NAME}.spv")
+    add_custom_command(
+      OUTPUT ${SPIRV}
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/resources/shaders"
+      COMMAND ${Vulkan_GLSLC_EXECUTABLE} -fshader-stage=frag ${GLSL} -o ${SPIRV}
+      DEPENDS ${GLSL})
+    list(APPEND SPIRV_BINARY_FILES ${SPIRV})
+endforeach(GLSL)
+
+add_custom_target(
+    vkr-shaders 
+    DEPENDS ${SPIRV_BINARY_FILES}
+    SOURCES ${GLSL_VERT_FILES} ${GLSL_FRAG_FILES}
+    )
+
+set_source_files_properties(${GLSL_VERT_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties(${GLSL_FRAG_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+
+add_dependencies(vkr-test vkr-shaders)
