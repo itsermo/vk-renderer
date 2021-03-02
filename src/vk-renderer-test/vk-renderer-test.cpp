@@ -4,7 +4,6 @@ const int WINDOW_WIDTH  { 800 };
 const int WINDOW_HEIGHT { 600 };
 
 const std::string VIKING_ROOM_MODEL_PATH = "../../resources/models/viking-room.obj";
-
 const std::string VIKING_ROOM_TEXTURE_PATH = "../../resources/textures/viking-room.png";
 
 int main() try

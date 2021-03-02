@@ -113,7 +113,7 @@ foreach(GLSL ${GLSL_VERT_FILES})
     set(SPIRV "${CMAKE_CURRENT_LIST_DIR}/build/resources/shaders/cache/${FILE_NAME}.spv")
     add_custom_command(
       OUTPUT ${SPIRV}
-      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_LIST_DIR}/build/shaders/cache"
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_LIST_DIR}/build/resources/shaders/cache"
       COMMAND ${Vulkan_GLSLC_EXECUTABLE} -fshader-stage=vert ${GLSL} -o ${SPIRV}
       DEPENDS ${GLSL})
     list(APPEND SPIRV_BINARY_FILES ${SPIRV})
@@ -124,7 +124,7 @@ foreach(GLSL ${GLSL_FRAG_FILES})
     set(SPIRV "${CMAKE_CURRENT_LIST_DIR}/build/resources/shaders/cache/${FILE_NAME}.spv")
     add_custom_command(
       OUTPUT ${SPIRV}
-      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_LIST_DIR}/build/shaders/cache"
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_LIST_DIR}/build/resources/shaders/cache"
       COMMAND ${Vulkan_GLSLC_EXECUTABLE} -fshader-stage=frag ${GLSL} -o ${SPIRV}
       DEPENDS ${GLSL})
     list(APPEND SPIRV_BINARY_FILES ${SPIRV})
