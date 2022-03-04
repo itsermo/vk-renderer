@@ -36,6 +36,9 @@
 #include <chrono>
 #include <unordered_map>
 
+#include <shaders/vulkan/standard.fs.hpp>
+#include <shaders/vulkan/standard.vs.hpp>
+
 using namespace linalg::aliases;
 
 // Checks vulkan return code, throws runtime error exception if not VK_SUCCESS
@@ -429,8 +432,6 @@ namespace vk_renderer {
 		std::vector<VkImageView> swap_chain_image_views{};
 		VkShaderModule vert_shader_module{ VK_NULL_HANDLE };
 		VkShaderModule frag_shader_module{ VK_NULL_HANDLE };
-		const char * VERT_SHADER_FILENAME = "../../resources/shaders/cache/shader.vs.spv";
-		const char * FRAG_SHADER_FILENAME = "../../resources/shaders/cache/shader.fs.spv";
 		VkRenderPass render_pass{ VK_NULL_HANDLE };
 		VkDescriptorSetLayout descriptor_set_layout{ VK_NULL_HANDLE };
 		VkPipelineLayout pipeline_layout{ VK_NULL_HANDLE };
@@ -1079,6 +1080,20 @@ namespace vk_renderer {
 			return shader_module;
 		}
 
+		template <size_t N>
+		VkShaderModule create_shader_module(const std::array<unsigned char, N>& shader_bin)
+		{
+			VkShaderModuleCreateInfo create_info{};
+			create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+			create_info.codeSize = N;
+			create_info.pCode = reinterpret_cast<const uint32_t*>(shader_bin.data());
+
+			VkShaderModule shader_module;
+			CHECK_VK(vkCreateShaderModule(logical_device, &create_info, nullptr, &shader_module), "Could not create vulkan shader module");
+
+			return shader_module;
+		}
+
 		void create_render_pass()
 		{
 			// Create color attachment with sample count from msaa_samples
@@ -1183,50 +1198,49 @@ namespace vk_renderer {
 
 		void create_graphics_pipeline()
 		{
-			const auto & vert_shader = read_file(VERT_SHADER_FILENAME);
-			const auto & frag_shader = read_file(FRAG_SHADER_FILENAME);
-
 			shaderc::CompileOptions options{};
 			shaderc::Compiler compiler{};
 
-			auto ext = std::string(VERT_SHADER_FILENAME);
-			ext = std::string(ext.end() - 3, ext.end());
-			if (ext == "spv")
-			{
-				vert_shader_module = create_shader_module(vert_shader);
-			}
-			else
-			{
-				// Compile vert shader
-				auto compilation_result = compiler.CompileGlslToSpv(std::string(vert_shader.begin(), vert_shader.end()), shaderc_shader_kind::shaderc_glsl_vertex_shader, VERT_SHADER_FILENAME, options);
-				if (compilation_result.GetCompilationStatus() != shaderc_compilation_status_success)
-					throw std::runtime_error("Could not compile shader file '" + std::string(VERT_SHADER_FILENAME) + "': " + compilation_result.GetErrorMessage());
+			vert_shader_module = create_shader_module(STANDARD_VS);
+			frag_shader_module = create_shader_module(STANDARD_FS);
+			// auto ext = std::string(VERT_SHADER_FILENAME);
+			// ext = std::string(ext.end() - 3, ext.end());
+			// if (ext == "spv")
+			// {
+			// 	vert_shader_module = create_shader_module(vert_shader);
+			// }
+			// else
+			// {
+			// 	// Compile vert shader
+			// 	auto compilation_result = compiler.CompileGlslToSpv(std::string(vert_shader.begin(), vert_shader.end()), shaderc_shader_kind::shaderc_glsl_vertex_shader, VERT_SHADER_FILENAME, options);
+			// 	if (compilation_result.GetCompilationStatus() != shaderc_compilation_status_success)
+			// 		throw std::runtime_error("Could not compile shader file '" + std::string(VERT_SHADER_FILENAME) + "': " + compilation_result.GetErrorMessage());
 
-				const std::vector<uint32_t> vert_bin(compilation_result.begin(), compilation_result.end());
+			// 	const std::vector<uint32_t> vert_bin(compilation_result.begin(), compilation_result.end());
 
-				// Create vert shader module
-				vert_shader_module = create_shader_module(vert_bin);
-			}
+			// 	// Create vert shader module
+			// 	vert_shader_module = create_shader_module(vert_bin);
+			// }
 
-			ext = std::string(FRAG_SHADER_FILENAME);
-			ext = std::string(ext.end() - 3, ext.end());
+			// ext = std::string(FRAG_SHADER_FILENAME);
+			// ext = std::string(ext.end() - 3, ext.end());
 
-			if (ext == "spv")
-			{
-				frag_shader_module = create_shader_module(frag_shader);
-			}
-			else
-			{
-				// Compile frag shader
-				auto compilation_result = compiler.CompileGlslToSpv(std::string(frag_shader.begin(), frag_shader.end()), shaderc_shader_kind::shaderc_glsl_fragment_shader, FRAG_SHADER_FILENAME, options);
-				if (compilation_result.GetCompilationStatus() != shaderc_compilation_status_success)
-					throw std::runtime_error("Could not compile shader file '" + std::string(VERT_SHADER_FILENAME) + "': " + compilation_result.GetErrorMessage());
+			// if (ext == "spv")
+			// {
+			// 	frag_shader_module = create_shader_module(frag_shader);
+			// }
+			// else
+			// {
+			// 	// Compile frag shader
+			// 	auto compilation_result = compiler.CompileGlslToSpv(std::string(frag_shader.begin(), frag_shader.end()), shaderc_shader_kind::shaderc_glsl_fragment_shader, FRAG_SHADER_FILENAME, options);
+			// 	if (compilation_result.GetCompilationStatus() != shaderc_compilation_status_success)
+			// 		throw std::runtime_error("Could not compile shader file '" + std::string(VERT_SHADER_FILENAME) + "': " + compilation_result.GetErrorMessage());
 
-				const std::vector<uint32_t> frag_bin(compilation_result.begin(), compilation_result.end());
+			// 	const std::vector<uint32_t> frag_bin(compilation_result.begin(), compilation_result.end());
 
-				// Create frag shader module
-				frag_shader_module = create_shader_module(frag_bin);
-			}
+			// 	// Create frag shader module
+			// 	frag_shader_module = create_shader_module(frag_bin);
+			// }
 
 			// Ready to create the pipeline
 			VkPipelineShaderStageCreateInfo vert_shader_stage_info = {};

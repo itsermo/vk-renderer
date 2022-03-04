@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.19.6)
 project(vkr VERSION 1.0)
 
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake")
+include(VulkanShaders)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "(cmake)")
 function(get_platform_prefix __platform_prefix)
@@ -83,15 +86,22 @@ target_sources(vkr PRIVATE    ${CMAKE_CURRENT_LIST_DIR}/src/vk-renderer/vk-rende
 
 get_filename_component(VULKAN_LIB_DIR ${Vulkan_LIBRARY} DIRECTORY)
 
-add_library(vkr-shaderc UNKNOWN IMPORTED)
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    add_library(vkr-shaderc INTERFACE IMPORTED)
     set_property(TARGET vkr-shaderc PROPERTY IMPORTED_LOCATION   "${VULKAN_LIB_DIR}/shaderc_shared.lib")
     set_property(TARGET vkr-shaderc PROPERTY IMPORTED_LOCATION_DEBUG   "${VULKAN_LIB_DIR}/shaderc_shared.lib")
     set_property(TARGET vkr-shaderc PROPERTY IMPORTED_LOCATION_RELEASE "${VULKAN_LIB_DIR}/shaderc_combined.lib")
+    set_property(TARGET vkr-shaderc PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${Vulkan_INCLUDE_DIRS}")
 else()
-    set_property(TARGET vkr-shaderc PROPERTY IMPORTED_LOCATION "${VULKAN_LIB_DIR}/libshaderc_combined.a")
+    add_library(vkr-shaderc INTERFACE)
+    find_library(SHADERC_COMBINED NAMES shaderc_combined libshaderc_combined)
+    target_link_libraries(vkr-shaderc INTERFACE ${SHADERC_COMBINED})
+
+    get_filename_component(SHADERC_LIB_DIR ${SHADERC_COMBINED} DIRECTORY)
+    get_filename_component(SHADERC_INCLUDE_DIR "${SHADERC_LIB_DIR}/../include/" ABSOLUTE)
+
+    set_property(TARGET vkr-shaderc PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${SHADERC_INCLUDE_DIR}")
  endif()
- set_property(TARGET vkr-shaderc PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${Vulkan_INCLUDE_DIRS}")
 
 target_link_libraries(vkr PUBLIC vkr-linalg vkr-stb-image vkr-tiny-obj-loader Vulkan::Vulkan vkr-shaderc glfw)
 
@@ -100,50 +110,14 @@ target_link_libraries(vkr-test PUBLIC vkr)
 target_compile_features(vkr-test PUBLIC cxx_std_17)
 
 # Automatically compile shaders to validate them upon building vkr
-file(GLOB_RECURSE GLSL_VERT_FILES
-    "${CMAKE_CURRENT_LIST_DIR}/resources/shaders/*.vs*"
-    )
+file(GLOB_RECURSE GLSL_VERT_FILES "${CMAKE_CURRENT_LIST_DIR}/resources/shaders/*.vs*")
+file(GLOB_RECURSE GLSL_FRAG_FILES "${CMAKE_CURRENT_LIST_DIR}/resources/shaders/*.fs*")
 
-file(GLOB_RECURSE GLSL_FRAG_FILES
-    "${CMAKE_CURRENT_LIST_DIR}/resources/shaders/*.fs*"
-    )
-
-foreach(GLSL ${GLSL_VERT_FILES})
-    get_filename_component(FILE_NAME ${GLSL} NAME_WLE)
-    set(SPIRV "${CMAKE_CURRENT_LIST_DIR}/build/resources/shaders/cache/${FILE_NAME}.spv")
-    add_custom_command(
-      OUTPUT ${SPIRV}
-      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_LIST_DIR}/build/resources/shaders/cache"
-      COMMAND ${Vulkan_GLSLC_EXECUTABLE} -fshader-stage=vert ${GLSL} -o ${SPIRV}
-      DEPENDS ${GLSL})
-    list(APPEND SPIRV_BINARY_FILES ${SPIRV})
-endforeach(GLSL)
-
-foreach(GLSL ${GLSL_FRAG_FILES})
-    get_filename_component(FILE_NAME ${GLSL} NAME_WLE)
-    set(SPIRV "${CMAKE_CURRENT_LIST_DIR}/build/resources/shaders/cache/${FILE_NAME}.spv")
-    add_custom_command(
-      OUTPUT ${SPIRV}
-      COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_LIST_DIR}/build/resources/shaders/cache"
-      COMMAND ${Vulkan_GLSLC_EXECUTABLE} -fshader-stage=frag ${GLSL} -o ${SPIRV}
-      DEPENDS ${GLSL})
-    list(APPEND SPIRV_BINARY_FILES ${SPIRV})
-endforeach(GLSL)
-
-add_custom_target(
-    vkr-test-shaders 
-    DEPENDS ${SPIRV_BINARY_FILES}
-    SOURCES ${GLSL_VERT_FILES} ${GLSL_FRAG_FILES}
-    )
-
-set_source_files_properties(${GLSL_VERT_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
-set_source_files_properties(${GLSL_FRAG_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
-
-add_dependencies(vkr-test vkr-test-shaders)
-
-## resources
-add_custom_command(
-        TARGET vkr-test POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/resources ${CMAKE_CURRENT_LIST_DIR}/build/resources
+# Add shader rules
+target_vulkan_shaders(vkr  EMBED
+                           PUBLIC
+                           GLSL_VERSION 450
+                           TARGET_ENV vulkan1.1
+                           VERT    ${GLSL_VERT_FILES}
+                           FRAG    ${GLSL_FRAG_FILES}
 )
-                
