@@ -470,11 +470,8 @@ namespace vk_renderer {
 
 		const std::vector<const char*> VALIDATION_LAYERS = { "VK_LAYER_KHRONOS_validation" };
 		const std::vector<const char*> DEVICE_EXTENSIONS = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
-#ifdef NDEBUG
-		const bool enable_validation_layers = false;
-#else
-		const bool enable_validation_layers = true;
-#endif
+
+		bool enable_validation_layers = true;
 
 		bool check_validation_layer_support() {
 			uint32_t layer_count;
@@ -647,7 +644,8 @@ namespace vk_renderer {
 		void create_vulkan_instance()
 		{
 			if (enable_validation_layers && !check_validation_layer_support()) {
-				throw std::runtime_error("Validation layers requested, but not available!");
+				std::cerr << "Validation layers requested, but not available! Continuing sans validation layers..." << std::endl;
+				enable_validation_layers = false;
 			}
 
 			uint32_t extension_count = 0;

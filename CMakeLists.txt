@@ -3,6 +3,7 @@ project(vkr VERSION 1.0)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR}/cmake")
 include(VulkanShaders)
+include(TargetResources)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "(cmake)")
@@ -87,7 +88,7 @@ target_sources(vkr PRIVATE    ${CMAKE_CURRENT_LIST_DIR}/src/vk-renderer/vk-rende
 get_filename_component(VULKAN_LIB_DIR ${Vulkan_LIBRARY} DIRECTORY)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-    add_library(vkr-shaderc INTERFACE IMPORTED)
+    add_library(vkr-shaderc UNKNOWN IMPORTED)
     set_property(TARGET vkr-shaderc PROPERTY IMPORTED_LOCATION   "${VULKAN_LIB_DIR}/shaderc_shared.lib")
     set_property(TARGET vkr-shaderc PROPERTY IMPORTED_LOCATION_DEBUG   "${VULKAN_LIB_DIR}/shaderc_shared.lib")
     set_property(TARGET vkr-shaderc PROPERTY IMPORTED_LOCATION_RELEASE "${VULKAN_LIB_DIR}/shaderc_combined.lib")
@@ -121,3 +122,12 @@ target_vulkan_shaders(vkr  EMBED
                            VERT    ${GLSL_VERT_FILES}
                            FRAG    ${GLSL_FRAG_FILES}
 )
+
+add_resources_target(vkr-test-resources ${CMAKE_CURRENT_LIST_DIR}/resources ${CMAKE_CURRENT_LIST_DIR}/build/resources)
+
+add_dependencies(vkr-test vkr-test-resources)
+
+set_target_properties(embed-file PROPERTIES FOLDER "utilities")
+set_target_properties(vkr PROPERTIES FOLDER "engine")
+set_target_properties(vkr-test-resources PROPERTIES FOLDER "applications")
+set_target_properties(vkr-test PROPERTIES FOLDER "applications")
